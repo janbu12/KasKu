@@ -1,0 +1,6 @@
+node_modules/
+
+# Firebase Admin Key
+serviceAccountKey.json
+
+.env
