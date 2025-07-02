@@ -11,6 +11,7 @@ import com.android.kasku.ui.splash.SplashScreen // Pastikan import ini benar
 import com.android.kasku.ui.auth.LoginScreen
 import com.android.kasku.ui.auth.AuthViewModel
 import com.android.kasku.MainScreen
+import com.android.kasku.ui.auth.RegisterScreen
 
 @Composable
 fun AppNavHost() {
@@ -28,9 +29,8 @@ fun AppNavHost() {
         composable(AppRoutes.HOME_SCREEN) {
             MainScreen() // Ini adalah MainScreen placeholder Anda, nanti bisa jadi HomeScreen.kt
         }
-        composable(AppRoutes.REGISTER_SCREEN) {
-            // TODO: Implement RegisterScreen here
-            Text("Register Screen placeholder") // Placeholder for register
+        composable(AppRoutes.REGISTER_SCREEN) { // <-- BARU
+            RegisterScreen(navController = navController, authViewModel = authViewModel)
         }
         // Tambahkan composable lain untuk rute Anda di sini
     }

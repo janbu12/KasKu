@@ -63,4 +63,7 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth.ktx)
     implementation(libs.firebase.analytics)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+    implementation(libs.gson)
 }
