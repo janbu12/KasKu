@@ -6,12 +6,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -26,22 +29,24 @@ fun RegisterScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel()
 ) {
-    // State dari ViewModel untuk Register
-    val username by remember { derivedStateOf { authViewModel.registerUsername } }
-    val email by remember { derivedStateOf { authViewModel.registerEmail } }
-    val password by remember { derivedStateOf { authViewModel.registerPassword } }
-    val isLoading by remember { derivedStateOf { authViewModel.isLoading } }
-    val errorMessage by remember { derivedStateOf { authViewModel.errorMessage } }
-    val registerSuccess by remember { derivedStateOf { authViewModel.registerSuccess } }
+    val currentUsername = authViewModel.registerUsername
+    val currentEmail = authViewModel.registerEmail
+    val currentPassword = authViewModel.registerPassword
+    val currentConfirmPassword = authViewModel.registerConfirmPassword
+    val currentIsLoading = authViewModel.isLoading
+    val currentErrorMessage = authViewModel.errorMessage
+    val currentRegisterSuccess = authViewModel.registerSuccess
 
-    // Effect untuk menangani navigasi setelah register berhasil
-    LaunchedEffect(key1 = registerSuccess) {
-        if (registerSuccess) {
-            // Setelah register sukses, navigasi ke layar Login atau Home
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+
+    LaunchedEffect(key1 = currentRegisterSuccess) {
+        if (currentRegisterSuccess) {
             navController.navigate(AppRoutes.LOGIN_SCREEN) {
-                popUpTo(AppRoutes.REGISTER_SCREEN) { inclusive = true } // Hapus RegisterScreen dari backstack
+                popUpTo(AppRoutes.REGISTER_SCREEN) { inclusive = true }
             }
-            authViewModel.resetRegisterState() // Reset state ViewModel setelah navigasi
+            authViewModel.resetRegisterState()
         }
     }
 
@@ -55,59 +60,82 @@ fun RegisterScreen(
             verticalArrangement = Arrangement.Center
         ) {
             Text(
-                text = "Daftar Akun KasKu",
+                text = "Daftar Akun Baru",
                 style = MaterialTheme.typography.headlineMedium,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
             OutlinedTextField(
-                value = username,
+                value = currentUsername,
                 onValueChange = { authViewModel.onRegisterUsernameChange(it) },
                 label = { Text("Username") },
                 leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Username Icon") },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                isError = errorMessage != null && errorMessage?.contains("username", ignoreCase = true) == true
+                isError = currentErrorMessage != null && currentErrorMessage.contains("username", ignoreCase = true) == true
             )
 
             OutlinedTextField(
-                value = email,
+                value = currentEmail,
                 onValueChange = { authViewModel.onRegisterEmailChange(it) },
                 label = { Text("Email") },
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email Icon") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                isError = errorMessage != null && errorMessage?.contains("email", ignoreCase = true) == true
+                isError = currentErrorMessage != null && currentErrorMessage.contains("email", ignoreCase = true) == true
             )
 
             OutlinedTextField(
-                value = password,
+                value = currentPassword,
                 onValueChange = { authViewModel.onRegisterPasswordChange(it) },
                 label = { Text("Password") },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password Icon") },
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-                isError = errorMessage != null && errorMessage?.contains("password", ignoreCase = true) == true ||
-                        errorMessage != null && errorMessage?.contains("symbol", ignoreCase = true) == true ||
-                        errorMessage != null && errorMessage?.contains("uppercase", ignoreCase = true) == true ||
-                        errorMessage != null && errorMessage?.contains("lowercase", ignoreCase = true) == true ||
-                        errorMessage != null && errorMessage?.contains("number", ignoreCase = true) == true
+                trailingIcon = {
+                    val image = if (passwordVisible)
+                        Icons.Filled.Visibility
+                    else Icons.Filled.VisibilityOff
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector  = image, contentDescription = "Toggle password visibility")
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                isError = currentErrorMessage != null && currentErrorMessage.contains("password", ignoreCase = true) == true
             )
 
-            if (errorMessage != null) {
+            OutlinedTextField(
+                value = currentConfirmPassword,
+                onValueChange = { authViewModel.onRegisterConfirmPasswordChange(it) },
+                label = { Text("Konfirmasi Password") },
+                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Confirm Password Icon") },
+                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    val image = if (confirmPasswordVisible)
+                        Icons.Filled.Visibility
+                    else Icons.Filled.VisibilityOff
+                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                        Icon(imageVector  = image, contentDescription = "Toggle confirm password visibility")
+                    }
+                },
+                modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+                isError = currentErrorMessage != null && currentErrorMessage.contains("match", ignoreCase = true) == true
+            )
+
+            if (currentErrorMessage != null) {
                 Text(
-                    text = errorMessage!!,
+                    text = currentErrorMessage,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
             }
 
             Button(
-                onClick = { authViewModel.registerUser() }, // Panggil fungsi register ke backend
+                onClick = { authViewModel.registerUser() },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !isLoading
+                enabled = !currentIsLoading
             ) {
-                if (isLoading) {
+                if (currentIsLoading) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(24.dp),
                         color = MaterialTheme.colorScheme.onPrimary,

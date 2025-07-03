@@ -5,12 +5,15 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel // Untuk mendapatkan ViewModel
@@ -31,14 +34,15 @@ fun LoginScreen(
     val currentErrorMessage = authViewModel.errorMessage
     val currentLoginSuccess = authViewModel.loginSuccess
 
+    var passwordVisible by remember { mutableStateOf(false) }
 
     // Effect untuk menangani navigasi setelah login berhasil
     LaunchedEffect(key1 = currentLoginSuccess) {
         if (currentLoginSuccess) {
-            navController.navigate(AppRoutes.HOME_SCREEN) { // Navigasi ke Home Screen setelah login
-                popUpTo(AppRoutes.LOGIN_SCREEN) { inclusive = true } // Hapus LoginScreen dari backstack
+            navController.navigate(AppRoutes.HOME_SCREEN) {
+                popUpTo(AppRoutes.LOGIN_SCREEN) { inclusive = true }
             }
-            authViewModel.resetLoginState() // Reset state ViewModel setelah navigasi
+            authViewModel.resetLoginState()
         }
     }
 
@@ -64,7 +68,7 @@ fun LoginScreen(
                 leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email Icon") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                isError = currentErrorMessage != null && currentErrorMessage?.contains("email", ignoreCase = true) == true
+                isError = currentErrorMessage != null && currentErrorMessage.contains("email", ignoreCase = true) == true
             )
 
             OutlinedTextField(
@@ -72,8 +76,16 @@ fun LoginScreen(
                 onValueChange = { authViewModel.onPasswordChange(it) },
                 label = { Text("Password") },
                 leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password Icon") },
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    val image = if (passwordVisible)
+                        Icons.Filled.Visibility
+                    else Icons.Filled.VisibilityOff
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(imageVector  = image, contentDescription = "Toggle password visibility")
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
                 isError = currentErrorMessage != null && currentErrorMessage?.contains("password", ignoreCase = true) == true ||
                         currentErrorMessage != null && currentErrorMessage?.contains("credentials", ignoreCase = true) == true

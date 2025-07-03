@@ -44,6 +44,8 @@ class AuthViewModel : ViewModel() {
         private set
     var registerPassword by mutableStateOf("")
         private set
+    var registerConfirmPassword by mutableStateOf("")
+        private set
     var registerSuccess by mutableStateOf(false)
         private set
 
@@ -113,9 +115,19 @@ class AuthViewModel : ViewModel() {
         errorMessage = null
     }
 
+    fun onRegisterConfirmPasswordChange(newConfirmPassword: String) {
+        registerConfirmPassword = newConfirmPassword
+        errorMessage = null
+    }
+
     fun registerUser() { // Nama fungsi diubah dari registerUserWithBackend menjadi registerUser
-        if (registerUsername.isBlank() || registerEmail.isBlank() || registerPassword.isBlank()) {
-            errorMessage = "Username, email, and password cannot be empty."
+        if (registerUsername.isBlank() || registerEmail.isBlank() || registerPassword.isBlank() || registerConfirmPassword.isBlank()) {
+            errorMessage = "Username, email, password, and confirm password cannot be empty."
+            return
+        }
+
+        if (registerPassword != registerConfirmPassword) {
+            errorMessage = "Password and confirm password do not match."
             return
         }
 

@@ -66,4 +66,5 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.logging.interceptor)
     implementation(libs.gson)
+    implementation(libs.androidx.material.icons.extended)
 }
