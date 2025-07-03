@@ -21,7 +21,8 @@ import kotlinx.coroutines.launch
 // ) : ViewModel() {
 
 class AuthViewModel : ViewModel() {
-    // Inisialisasi manual untuk ViewModel tanpa DI (cocok untuk contoh ini)
+    private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
+    private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
     private val authRepository: AuthRepositoryImpl = AuthRepositoryImpl(FirebaseAuth.getInstance(), FirebaseFirestore.getInstance())
     private val loginUseCase: LoginUseCase = LoginUseCase(authRepository)
     private val registerUseCase: RegisterUseCase = RegisterUseCase(authRepository)
@@ -45,6 +46,15 @@ class AuthViewModel : ViewModel() {
         private set
     var registerSuccess by mutableStateOf(false)
         private set
+
+    var isUserLoggedIn by mutableStateOf(false)
+        private set
+    var authCheckCompleted by mutableStateOf(false)
+        private set
+
+    init {
+        checkUserLoggedIn()
+    }
 
     fun onEmailChange(newEmail: String) {
         email = newEmail
@@ -70,7 +80,7 @@ class AuthViewModel : ViewModel() {
             when (val result = loginUseCase(email, password)) {
                 is AuthResult.Success -> {
                     loginSuccess = true
-                    // Navigasi akan ditangani di Composable
+                    isUserLoggedIn = true
                 }
                 is AuthResult.Error -> {
                     errorMessage = result.message
@@ -80,10 +90,12 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    fun resetState() {
+    fun resetLoginState() {
         isLoading = false
         errorMessage = null
         loginSuccess = false
+        email = ""
+        password = ""
     }
 
     fun onRegisterUsernameChange(newUsername: String) {
@@ -133,5 +145,31 @@ class AuthViewModel : ViewModel() {
         registerUsername = ""
         registerEmail = ""
         registerPassword = ""
+    }
+
+    fun checkUserLoggedIn() {
+        viewModelScope.launch {
+            val currentUser = firebaseAuth.currentUser
+            isUserLoggedIn = (currentUser != null)
+            authCheckCompleted = true
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            try {
+                firebaseAuth.signOut()
+                isUserLoggedIn = false
+                errorMessage = null
+                loginSuccess = false
+                resetLoginState()
+                resetRegisterState()
+
+                // Opsional: Hapus data lokal lainnya jika ada
+            } catch (e: Exception) {
+                errorMessage = "Failed to log out: ${e.localizedMessage}"
+                e.printStackTrace()
+            }
+        }
     }
 }

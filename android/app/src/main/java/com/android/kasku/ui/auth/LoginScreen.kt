@@ -38,7 +38,7 @@ fun LoginScreen(
             navController.navigate(AppRoutes.HOME_SCREEN) { // Navigasi ke Home Screen setelah login
                 popUpTo(AppRoutes.LOGIN_SCREEN) { inclusive = true } // Hapus LoginScreen dari backstack
             }
-            authViewModel.resetState() // Reset state ViewModel setelah navigasi
+            authViewModel.resetLoginState() // Reset state ViewModel setelah navigasi
         }
     }
 

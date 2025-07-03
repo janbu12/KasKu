@@ -2,6 +2,9 @@ package com.android.kasku.navigation
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -19,6 +22,24 @@ fun AppNavHost() {
     // Inisialisasi ViewModel di sini, atau gunakan Hilt jika sudah di setup
     val authViewModel: AuthViewModel = viewModel()
 
+    val isUserLoggedIn by rememberUpdatedState(authViewModel.isUserLoggedIn)
+    val authCheckCompleted by rememberUpdatedState(authViewModel.authCheckCompleted)
+
+    LaunchedEffect(key1 = authCheckCompleted, key2 = isUserLoggedIn) {
+        if (authCheckCompleted) {
+            if (isUserLoggedIn) {
+                navController.navigate(AppRoutes.HOME_SCREEN) {
+                    popUpTo(AppRoutes.SPLASH_SCREEN) { inclusive = true }
+                }
+            } else {
+                navController.navigate(AppRoutes.LOGIN_SCREEN) {
+//                    popUpTo(AppRoutes.SPLASH_SCREEN) { inclusive = true }
+                    popUpTo(AppRoutes.HOME_SCREEN) { inclusive = true }
+                }
+            }
+        }
+    }
+
     NavHost(navController = navController, startDestination = AppRoutes.SPLASH_SCREEN) {
         composable(AppRoutes.SPLASH_SCREEN) {
             SplashScreen(navController = navController)
@@ -27,7 +48,7 @@ fun AppNavHost() {
             LoginScreen(navController = navController, authViewModel = authViewModel)
         }
         composable(AppRoutes.HOME_SCREEN) {
-            MainScreen() // Ini adalah MainScreen placeholder Anda, nanti bisa jadi HomeScreen.kt
+            MainScreen(authViewModel = authViewModel)
         }
         composable(AppRoutes.REGISTER_SCREEN) { // <-- BARU
             RegisterScreen(navController = navController, authViewModel = authViewModel)
