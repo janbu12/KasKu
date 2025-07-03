@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const admin = require('firebase-admin');
 const authRoutes = require('./routes/auth');
+const apiRoutes = require('./routes/api');
 
 const serviceAccount = require('./serviceAccountKey.json');
 
@@ -26,11 +27,13 @@ app.use((req, res, next) => {
   next();
 });
 
+
 app.get('/', (req, res) => {
   res.send('Welcome to KasKu Backend API!');
 });
 
 app.use('/auth', authRoutes);
+app.use('/api', apiRoutes);
 
 app.listen(PORT, () => {
   console.log(`KasKu Backend Server is running on port ${PORT}`);
