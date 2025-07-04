@@ -28,8 +28,10 @@ android {
         }
 
         val kaskuBaseUrl = localProperties.getProperty("KASKU_BASE_URL")
+        val prodBaseUrl = localProperties.getProperty("PROD_BASE_URL")
 
         buildConfigField("String", "KASKU_BASE_URL", kaskuBaseUrl)
+        buildConfigField("String", "PROD_BASE_URL", prodBaseUrl)
     }
 
     buildTypes {

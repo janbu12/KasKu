@@ -30,6 +30,7 @@ class AuthRepositoryImpl(
     private val httpClient: OkHttpClient = OkHttpClient()
 
     private val BASE_URL = BuildConfig.KASKU_BASE_URL
+    private val PROD_BASE_URL = BuildConfig.PROD_BASE_URL
 
     override suspend fun loginUser(email: String, password: String): AuthResult<com.google.firebase.auth.FirebaseUser> {
         return try {
@@ -62,7 +63,7 @@ class AuthRepositoryImpl(
                 val requestBody = jsonObject.toString().toRequestBody(jsonMediaType)
 
                 // PENTING: Ganti dengan IP host Anda jika di perangkat fisik, atau 10.0.2.2 untuk emulator
-                val url = "http://192.168.1.12:1234/auth/register" // URL backend Anda
+                val url = "${PROD_BASE_URL}/auth/register" // URL backend Anda
 
                 val request = okhttp3.Request.Builder()
                     .url(url)

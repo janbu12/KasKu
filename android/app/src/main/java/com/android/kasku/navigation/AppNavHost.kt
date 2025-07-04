@@ -4,11 +4,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel // Untuk AuthViewModel
+import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.navigation
 
 import com.android.kasku.ui.splash.SplashScreen // Pastikan import ini benar
@@ -26,18 +30,21 @@ fun AppNavHost() {
     val isUserLoggedIn by rememberUpdatedState(authViewModel.isUserLoggedIn)
     val authCheckCompleted by rememberUpdatedState(authViewModel.authCheckCompleted)
 
-    LaunchedEffect(key1 = authCheckCompleted, key2 = isUserLoggedIn) {
-        if (authCheckCompleted) {
+    var splashAnimationFinished by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = splashAnimationFinished, key2 = authCheckCompleted, key3 = isUserLoggedIn) {
+        if (splashAnimationFinished && authCheckCompleted) {
+            val splashScreenRouteId = navController.graph.findStartDestination().id
+
             if (isUserLoggedIn) {
                 navController.navigate(AppRoutes.APP_GRAPH_ROOT) {
-                    popUpTo(AppRoutes.SPLASH_SCREEN) { inclusive = true }
-                    popUpTo(AppRoutes.LOGIN_SCREEN) { inclusive = true }
-                    popUpTo(AppRoutes.REGISTER_SCREEN) { inclusive = true }
+                    navController.popBackStack(splashScreenRouteId, inclusive = true)
+                    navController.popBackStack(AppRoutes.LOGIN_SCREEN, inclusive = true)
                 }
             } else {
                 navController.navigate(AppRoutes.LOGIN_SCREEN) {
-                    popUpTo(AppRoutes.SPLASH_SCREEN) { inclusive = true }
-                    popUpTo(AppRoutes.HOME_SCREEN) { inclusive = true }
+                    navController.popBackStack(AppRoutes.APP_GRAPH_ROOT, inclusive = true)
+                    navController.popBackStack(splashScreenRouteId, inclusive = true)
                 }
             }
         }
@@ -45,7 +52,7 @@ fun AppNavHost() {
 
     NavHost(navController = navController, startDestination = AppRoutes.SPLASH_SCREEN) {
         composable(AppRoutes.SPLASH_SCREEN) {
-            SplashScreen(navController = navController)
+            SplashScreen(navController = navController, onAnimationFinished = { splashAnimationFinished = true })
         }
         composable(AppRoutes.LOGIN_SCREEN) {
             LoginScreen(navController = navController, authViewModel = authViewModel)

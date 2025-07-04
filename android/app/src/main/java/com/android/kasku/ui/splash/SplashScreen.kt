@@ -22,7 +22,10 @@ import com.android.kasku.ui.theme.KasKuTheme
 import kotlinx.coroutines.delay
 
 @Composable
-fun SplashScreen(navController: NavController) {
+fun SplashScreen(
+    navController: NavController,
+    onAnimationFinished: () -> Unit
+) {
     var startAnimation by remember { mutableStateOf(false) }
 
     val alphaAnim by animateFloatAsState(
@@ -40,8 +43,10 @@ fun SplashScreen(navController: NavController) {
     )
 
     LaunchedEffect(key1 = true) {
-        delay(3000)
-        startAnimation = true
+        delay(2000) // Tahan SplashScreen selama 2 detik sebelum animasi dimulai
+        startAnimation = true // Mulai animasi fade out dan geser
+        delay(1000) // Tunggu animasi selesai
+        onAnimationFinished() // <-- Panggil callback setelah animasi selesai
     }
 
     Box(
