@@ -37,14 +37,18 @@ fun AppNavHost() {
             val splashScreenRouteId = navController.graph.findStartDestination().id
 
             if (isUserLoggedIn) {
+                navController.popBackStack(splashScreenRouteId, inclusive = true)
+                navController.popBackStack(AppRoutes.LOGIN_SCREEN, inclusive = true)
+
                 navController.navigate(AppRoutes.APP_GRAPH_ROOT) {
-                    navController.popBackStack(splashScreenRouteId, inclusive = true)
-                    navController.popBackStack(AppRoutes.LOGIN_SCREEN, inclusive = true)
+                    launchSingleTop = true
                 }
             } else {
+                navController.popBackStack(AppRoutes.APP_GRAPH_ROOT, inclusive = true)
+                navController.popBackStack(splashScreenRouteId, inclusive = true)
+
                 navController.navigate(AppRoutes.LOGIN_SCREEN) {
-                    navController.popBackStack(AppRoutes.APP_GRAPH_ROOT, inclusive = true)
-                    navController.popBackStack(splashScreenRouteId, inclusive = true)
+                    launchSingleTop = true
                 }
             }
         }

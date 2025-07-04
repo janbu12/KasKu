@@ -1,6 +1,7 @@
 package com.android.kasku.ui.auth
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -20,6 +21,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel // Untuk mendapatkan ViewM
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.android.kasku.navigation.AppRoutes // Pastikan ini diimpor
+import com.android.kasku.ui.common.CustomButton
 import com.android.kasku.ui.theme.KasKuTheme // Sesuaikan tema Anda
 
 @OptIn(ExperimentalMaterial3Api::class) // Untuk Scaffold dan OutlinedTextField
@@ -32,8 +34,15 @@ fun LoginScreen(
     val currentPassword = authViewModel.password
     val currentIsLoading = authViewModel.isLoading
     val currentErrorMessage = authViewModel.errorMessage
+    val currentLoginSuccess = authViewModel.loginSuccess
 
     var passwordVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(key1 = currentLoginSuccess) {
+        if (currentLoginSuccess) {
+            authViewModel.resetLoginState()
+        }
+    }
 
     Scaffold { paddingValues ->
         Column(
@@ -46,8 +55,8 @@ fun LoginScreen(
         ) {
             Text(
                 text = "Login ke KasKu",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 32.dp)
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 28.dp)
             )
 
             OutlinedTextField(
@@ -88,26 +97,23 @@ fun LoginScreen(
                 )
             }
 
-            Button(
+            CustomButton(
+                text = "Login",
                 onClick = { authViewModel.login() },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !currentIsLoading // Disable button saat loading
-            ) {
-                if (currentIsLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Login")
-                }
-            }
+                enabled = !currentIsLoading,
+                isLoading = currentIsLoading,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = { navController.navigate(AppRoutes.REGISTER_SCREEN) }) {
-                Text("Belum punya akun? Daftar di sini.")
+            TextButton(onClick = {
+                navController.navigate(AppRoutes.REGISTER_SCREEN) {
+                    launchSingleTop = true
+                }
+                authViewModel.resetLoginState()
+            }) {
+                Text("Belum punya akun? Daftar di sini.", style = MaterialTheme.typography.labelSmall)
             }
         }
     }

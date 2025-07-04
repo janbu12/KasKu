@@ -1,15 +1,20 @@
 package com.android.kasku.ui.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.android.kasku.navigation.BottomNavItem
+import com.android.kasku.ui.theme.Green40
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
@@ -19,7 +24,10 @@ fun BottomNavigationBar(navController: NavController) {
         BottomNavItem.Me
     )
 
-    NavigationBar {
+    NavigationBar (
+        containerColor = MaterialTheme.colorScheme.background,
+        contentColor = Color.LightGray
+    ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
 
@@ -44,7 +52,10 @@ fun RowScope.AddItem(
             Text(text = item.label)
         },
         icon = {
-            Icon(imageVector = item.icon, contentDescription = item.label)
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.label
+            )
         },
         selected = currentRoute == item.route,
         onClick = {
@@ -62,6 +73,13 @@ fun RowScope.AddItem(
                     restoreState = true
                 }
             }
-        }
+        },
+        colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
+            selectedIconColor = MaterialTheme.colorScheme.primary,
+            selectedTextColor = MaterialTheme.colorScheme.primary,
+            indicatorColor = Color.White,
+            unselectedIconColor = Color.Gray,
+            unselectedTextColor = Color.Gray,
+        )
     )
 }

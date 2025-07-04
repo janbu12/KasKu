@@ -61,7 +61,7 @@ fun SplashScreen(
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Image(
-                painter = painterResource(id = R.drawable.kasku_1),
+                painter = painterResource(id = R.drawable.kasku_2),
                 contentDescription = "KasKu Logo",
                 modifier = Modifier.size(150.dp)
             )

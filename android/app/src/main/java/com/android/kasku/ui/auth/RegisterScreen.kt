@@ -1,5 +1,6 @@
 package com.android.kasku.ui.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -12,6 +13,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -21,6 +23,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.android.kasku.navigation.AppRoutes
+import com.android.kasku.ui.common.CustomButton
 import com.android.kasku.ui.theme.KasKuTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,12 +43,12 @@ fun RegisterScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = currentRegisterSuccess) {
         if (currentRegisterSuccess) {
-            navController.navigate(AppRoutes.LOGIN_SCREEN) {
-                popUpTo(AppRoutes.REGISTER_SCREEN) { inclusive = true }
-            }
+            Toast.makeText(context, "Register berhasil!", Toast.LENGTH_SHORT).show()
+            navController.popBackStack()
             authViewModel.resetRegisterState()
         }
     }
@@ -61,8 +64,8 @@ fun RegisterScreen(
         ) {
             Text(
                 text = "Daftar Akun Baru",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 32.dp)
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier.padding(bottom = 28.dp)
             )
 
             OutlinedTextField(
@@ -130,27 +133,20 @@ fun RegisterScreen(
                 )
             }
 
-            Button(
-                onClick = { authViewModel.registerUser() },
+            CustomButton(
+                text = "Register",
+                onClick = { authViewModel.login() },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !currentIsLoading
-            ) {
-                if (currentIsLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(24.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Daftar")
-                }
-            }
+                enabled = !currentIsLoading,
+                isLoading = currentIsLoading
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            TextButton(onClick = { navController.navigate(AppRoutes.LOGIN_SCREEN) {
-                popUpTo(AppRoutes.REGISTER_SCREEN) { inclusive = true }
-            } }) {
+            TextButton(onClick = {
+                navController.popBackStack()
+                authViewModel.resetRegisterState()
+            }) {
                 Text("Sudah punya akun? Login di sini.")
             }
         }

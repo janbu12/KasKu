@@ -63,7 +63,7 @@ class AuthRepositoryImpl(
                 val requestBody = jsonObject.toString().toRequestBody(jsonMediaType)
 
                 // PENTING: Ganti dengan IP host Anda jika di perangkat fisik, atau 10.0.2.2 untuk emulator
-                val url = "${PROD_BASE_URL}/auth/register" // URL backend Anda
+                val url = "${BASE_URL}/auth/register" // URL backend Anda
 
                 val request = okhttp3.Request.Builder()
                     .url(url)
