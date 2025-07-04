@@ -1,11 +1,21 @@
-# KasKu
+## KasKu: Manajemen Keuangan Personal Adaptif dengan Integrasi AI Multi-modal
+**KasKu** merevolusi pencatatan keuangan pribadi harian Anda dengan memanfaatkan kekuatan Kecerdasan Buatan (AI) Gemini secara terintegrasi. Aplikasi ini dirancang sebagai solusi cerdas yang memungkinkan Anda mengelola pengeluaran dan pemasukan dengan efisiensi dan akurasi yang belum pernah ada sebelumnya.
 
-### App Profile
+Fitur Utama & Keunggulan Inovatif:
+- Pemrosesan Struk Pintar dengan AI Gemini:
 
-**KasKu** hadir sebagai solusi adaptif untuk pencatatan keuangan harian Anda. Fitur utamanya adalah kemampuan untuk memindai struk belanja menggunakan teknologi **Optical Character Recognition (OCR)**. Cukup foto struk Anda, dan **KasKu** akan secara otomatis mengekstrak informasi penting seperti nama item, harga, dan total pengeluaran.
+  Fitur inti KasKu adalah kemampuannya untuk memproses struk belanja langsung dari foto. Berbeda dengan pendekatan tradisional, KasKu menggunakan AI Gemini multi-modal untuk secara langsung menganalisis gambar     struk, mengekstrak teks relevan (OCR), dan sekaligus mengubahnya menjadi data transaksi yang terstruktur dan mudah diatur. Proses terpadu ini menyederhanakan pencatatan pengeluaran, menjadikan setiap detail,     mulai dari nama item hingga total pembayaran, terekam secara otomatis dan akurat.
 
-Data transaksi yang terekam kemudian akan diintegrasikan dengan **Kecerdasan Buatan (AI) Gemini**. AI ini tidak hanya membantu memproses teks menjadi data terstruktur, tetapi juga berfungsi sebagai asisten keuangan pribadi Anda. **KasKu** akan menganalisis pola pengeluaran Anda dari waktu ke waktu. Jika terdeteksi adanya tren pengeluaran yang tidak efisien, misalnya dominasi pengeluaran pada satu kategori (seperti makanan yang mencapai persentase signifikan dari pemasukan), AI akan memberikan rekomendasi personal dan saran adaptif untuk membantu Anda mengelola anggaran dengan lebih baik.
+- Analisis Keuangan Cerdas & Rekomendasi Adaptif:
 
-Aplikasi ini juga dilengkapi dengan dashboard keuangan interaktif yang menampilkan gambaran menyeluruh tentang finance balance Anda, membandingkan total pengeluaran dengan pemasukan. Fitur ini memungkinkan Anda memantau kesehatan finansial secara real-time. Untuk mendukung penggunaan oleh banyak individu, **KasKu** dilengkapi dengan sistem login yang aman, memastikan data keuangan Anda tetap pribadi dan terorganisir.
+  Data transaksi yang terekam kemudian menjadi dasar bagi AI Gemini untuk memberikan wawasan keuangan yang mendalam. KasKu tidak hanya mencatat; ia menganalisis pola pengeluaran Anda dari waktu ke waktu. Jika      teridentifikasi tren yang kurang efisien, misalnya dominasi pengeluaran pada kategori tertentu (seperti makanan yang signifikan dari total pemasukan), AI akan proaktif memberikan rekomendasi personal dan saran   adaptif. Ini membantu Anda membuat keputusan finansial yang lebih baik dan mengoptimalkan anggaran secara cerdas.
 
-Dengan arsitektur yang memisahkan backend dan frontend serta sistem API yang kuat, **KasKu** dirancang untuk menjadi platform yang stabil, responsif, dan siap berkembang. **KasKu** adalah teman finansial Anda, membantu Anda mencapai tujuan keuangan dengan cara yang lebih mudah dan cerdas.
+- Dashboard Keuangan Interaktif & Real-time:
+
+  Aplikasi ini dilengkapi dengan dashboard keuangan yang intuitif, menyajikan gambaran menyeluruh tentang finance balance Anda. Anda dapat dengan mudah membandingkan total pengeluaran dengan pemasukan,             memungkinkan pemantauan kesehatan finansial secara real-time dan membantu Anda tetap di jalur tujuan keuangan.
+
+- Sistem Keamanan & Fleksibilitas:
+  
+  Untuk mendukung penggunaan personal yang aman dan memungkinkan akses multi-pengguna dan multi device, KasKu dilengkapi dengan sistem login yang terenkripsi, memastikan data keuangan Anda tetap pribadi dan        terlindungi. Dengan arsitektur yang memisahkan backend dan frontend serta sistem API yang kuat, KasKu dirancang sebagai platform yang stabil, responsif, dan siap untuk skalabilitas serta pengembangan fitur di    masa depan.
+
+KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cerdas Anda yang didukung AI, yang membantu Anda mencapai stabilitas dan tujuan keuangan dengan cara yang lebih mudah dan cerdas.
