@@ -32,19 +32,8 @@ fun LoginScreen(
     val currentPassword = authViewModel.password
     val currentIsLoading = authViewModel.isLoading
     val currentErrorMessage = authViewModel.errorMessage
-    val currentLoginSuccess = authViewModel.loginSuccess
 
     var passwordVisible by remember { mutableStateOf(false) }
-
-    // Effect untuk menangani navigasi setelah login berhasil
-    LaunchedEffect(key1 = currentLoginSuccess) {
-        if (currentLoginSuccess) {
-            navController.navigate(AppRoutes.HOME_SCREEN) {
-                popUpTo(AppRoutes.LOGIN_SCREEN) { inclusive = true }
-            }
-            authViewModel.resetLoginState()
-        }
-    }
 
     Scaffold { paddingValues ->
         Column(

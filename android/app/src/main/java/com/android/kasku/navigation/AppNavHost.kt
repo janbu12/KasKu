@@ -9,6 +9,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.lifecycle.viewmodel.compose.viewModel // Untuk AuthViewModel
+import androidx.navigation.compose.navigation
 
 import com.android.kasku.ui.splash.SplashScreen // Pastikan import ini benar
 import com.android.kasku.ui.auth.LoginScreen
@@ -28,12 +29,14 @@ fun AppNavHost() {
     LaunchedEffect(key1 = authCheckCompleted, key2 = isUserLoggedIn) {
         if (authCheckCompleted) {
             if (isUserLoggedIn) {
-                navController.navigate(AppRoutes.HOME_SCREEN) {
+                navController.navigate(AppRoutes.APP_GRAPH_ROOT) {
                     popUpTo(AppRoutes.SPLASH_SCREEN) { inclusive = true }
+                    popUpTo(AppRoutes.LOGIN_SCREEN) { inclusive = true }
+                    popUpTo(AppRoutes.REGISTER_SCREEN) { inclusive = true }
                 }
             } else {
                 navController.navigate(AppRoutes.LOGIN_SCREEN) {
-//                    popUpTo(AppRoutes.SPLASH_SCREEN) { inclusive = true }
+                    popUpTo(AppRoutes.SPLASH_SCREEN) { inclusive = true }
                     popUpTo(AppRoutes.HOME_SCREEN) { inclusive = true }
                 }
             }
@@ -47,12 +50,23 @@ fun AppNavHost() {
         composable(AppRoutes.LOGIN_SCREEN) {
             LoginScreen(navController = navController, authViewModel = authViewModel)
         }
-        composable(AppRoutes.HOME_SCREEN) {
-            MainScreen(authViewModel = authViewModel)
-        }
-        composable(AppRoutes.REGISTER_SCREEN) { // <-- BARU
+        composable(AppRoutes.REGISTER_SCREEN) {
             RegisterScreen(navController = navController, authViewModel = authViewModel)
         }
-        // Tambahkan composable lain untuk rute Anda di sini
+
+        navigation(
+            startDestination = BottomNavItem.Dashboard.route,
+            route = AppRoutes.APP_GRAPH_ROOT
+        ) {
+            composable(BottomNavItem.Dashboard.route) {
+                MainScreen(navController = navController, authViewModel = authViewModel)
+            }
+            composable(BottomNavItem.Structs.route) {
+                MainScreen(navController = navController, authViewModel = authViewModel)
+            }
+            composable(BottomNavItem.Me.route) {
+                MainScreen(navController = navController, authViewModel = authViewModel)
+            }
+        }
     }
 }
