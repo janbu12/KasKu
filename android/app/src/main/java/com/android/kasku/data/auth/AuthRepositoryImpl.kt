@@ -11,6 +11,7 @@ import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
+import com.android.kasku.BuildConfig
 
 // import com.google.firebase.auth.FirebaseUser
 // import com.google.firebase.firestore.FirebaseFirestore // Untuk menyimpan username saat register
@@ -27,6 +28,8 @@ class AuthRepositoryImpl(
 ) : AuthRepository {
 
     private val httpClient: OkHttpClient = OkHttpClient()
+
+    private val BASE_URL = BuildConfig.KASKU_BASE_URL
 
     override suspend fun loginUser(email: String, password: String): AuthResult<com.google.firebase.auth.FirebaseUser> {
         return try {
