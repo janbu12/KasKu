@@ -135,7 +135,7 @@ fun RegisterScreen(
 
             CustomButton(
                 text = "Register",
-                onClick = { authViewModel.login() },
+                onClick = { authViewModel.registerUser() },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !currentIsLoading,
                 isLoading = currentIsLoading
