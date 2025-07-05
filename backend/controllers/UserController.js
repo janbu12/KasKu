@@ -1,10 +1,10 @@
-const { dbFirestore } = require("../config/firebase");
 const { User, UserProfile } = require("../models/User");
 
 // Get all users
 exports.getAllUser = async (req, res) => {
   try {
-    const usersSnapshot = await dbFirestore.collection('users').get();
+    const db = req.db;
+    const usersSnapshot = await db.collection('users').get();
     const users = [];
     usersSnapshot.forEach(doc => {
       users.push(User.fromFirestore(doc.id, doc.data()));
@@ -15,20 +15,12 @@ exports.getAllUser = async (req, res) => {
   }
 };
 
-exports.getProfileUser = async (req, res) => {
-  const { uid } = req.params;
+exports.getMyProfile = async (req, res) => {
   const authenticatedUserUid = req.user.uid;
-
-  if (!uid) {
-    return res.status(400).json({ message: "User ID (uid) is required." });
-  }
-
-  if (authenticatedUserUid !== uid) {
-      return res.status(403).send({ message: "Forbidden: You can only view your own profile." });
-  }
+  const db = req.db;
 
   try {
-    const userDoc = await dbFirestore.collection('users').doc(uid).get();
+    const userDoc = await db.collection('users').doc(authenticatedUserUid).get();
     if (!userDoc.exists) {
       return res.status(404).json({ message: "User not found." });
     }
@@ -47,21 +39,13 @@ exports.getProfileUser = async (req, res) => {
   }
 };
 
-exports.updateProfileUser = async (req, res) => {
-  const { uid } = req.params;
+exports.updateMyProfile = async (req, res) => {
   const authenticatedUserUid = req.user.uid;
   const { occupation, income, financialGoals, currency, ...additionalData } = req.body;
-
-  if (!uid) {
-      return res.status(400).send({ message: "User ID (uid) is required." });
-  }
-
-  if (authenticatedUserUid !== uid) {
-      return res.status(403).send({ message: "Forbidden: You can only update your own profile." });
-  }
+  const db = req.db;
 
   try {
-      const userDocRef = dbFirestore.collection('users').doc(uid);
+      const userDocRef = db.collection('users').doc(authenticatedUserUid);
       const userDoc = await userDocRef.get();
 
       if (!userDoc.exists) {
