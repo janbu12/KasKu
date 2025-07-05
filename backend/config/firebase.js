@@ -1,6 +1,5 @@
 const admin = require('firebase-admin')
 const firebase = require('firebase/app')
-const firebaseAuth = require('firebase/auth'); // Tambahkan ini agar modul auth tersedia
 
 const serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH)
 
@@ -19,15 +18,8 @@ const firebaseConfig = {
     measurementId: process.env.FIREBASE_MEASUREMENT_ID
 }
 
-// Inisialisasi clientFirebase hanya jika belum ada instance
-let clientFirebase;
-try {
-    clientFirebase = firebase.app('clientFirebase');
-} catch (e) {
-    clientFirebase = firebase.initializeApp(firebaseConfig, 'clientFirebase');
-}
-
+const app = firebase.initializeApp(firebaseConfig);
 const dbFirestore = admin.firestore();
 const auth = admin.auth();
 
-module.exports = { admin, dbFirestore, auth, clientFirebase, firebase, firebaseAuth};
+module.exports = { admin, dbFirestore, app, auth};

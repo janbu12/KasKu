@@ -3,21 +3,21 @@ const { Receipt } = require("../models/User");
 
 // Add a receipt to a user (expects req.body.uid and req.body.receipt)
 exports.addStruct = async (req, res) => {
-  const { uid, receipt } = req.body;
-  if (!uid || !receipt) {
-    return res.status(400).json({ message: "User ID (uid) and receipt data are required." });
+  const authenticatedUserUid = req.user.uid;
+  const { receipt } = req.body;
+
+  if (!receipt) {
+    return res.status(400).json({ message: "receipt data required." });
   }
+
   try {
-    const userRef = dbFirestore.collection('users').doc(uid);
+    const userRef = dbFirestore.collection('users').doc(authenticatedUserUid);
     const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return res.status(404).json({ message: "User not found." });
     }
-    // Generate Firestore UUID
     const receiptId = dbFirestore.collection('_').doc().id;
-    // Pastikan id masuk ke receipt
     const receiptWithId = { ...receipt, id: receiptId };
-    // Convert receipt plain object to Receipt instance, then to Firestore format
     const receiptInstance = Receipt.fromFirestore(receiptWithId);
     await userRef.update({
       receipts: admin.firestore.FieldValue.arrayUnion(receiptInstance.toFirestore())
@@ -31,12 +31,14 @@ exports.addStruct = async (req, res) => {
 // Edit a receipt by id (expects req.params.id, req.body.uid, req.body.receipt)
 exports.editStruct = async (req, res) => {
   const { id } = req.params;
-  const { uid, receipt } = req.body;
-  if (!uid || !id || !receipt) {
+  const { receipt } = req.body;
+  const authenticatedUserUid = req.user.uid;
+
+  if (!id || !receipt) {
     return res.status(400).json({ message: "User ID (uid), receipt data, and struct id are required." });
   }
   try {
-    const userRef = dbFirestore.collection('users').doc(uid);
+    const userRef = dbFirestore.collection('users').doc(authenticatedUserUid);
     const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return res.status(404).json({ message: "User not found." });
@@ -46,7 +48,7 @@ exports.editStruct = async (req, res) => {
     if (idx === -1) {
       return res.status(404).json({ message: "Receipt not found." });
     }
-    // Replace the old receipt with the new one (ensure id stays the same)
+
     receipts[idx] = { ...receipts[idx], ...receipt, id };
     await userRef.update({ receipts });
     res.status(200).json({ message: "Receipt updated successfully." });
@@ -58,12 +60,14 @@ exports.editStruct = async (req, res) => {
 // Delete a receipt by id (expects req.params.id, req.body.uid)
 exports.deleteStruct = async (req, res) => {
   const { id } = req.params;
-  const { uid } = req.body;
-  if (!uid || !id) {
+  const authenticatedUserUid = req.user.uid;
+
+  if (!id) {
     return res.status(400).json({ message: "User ID (uid) and struct id are required." });
   }
+
   try {
-    const userRef = dbFirestore.collection('users').doc(uid);
+    const userRef = dbFirestore.collection('users').doc(authenticatedUserUid);
     const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return res.status(404).json({ message: "User not found." });
@@ -82,12 +86,10 @@ exports.deleteStruct = async (req, res) => {
 
 // Get all receipts for a user (expects req.params.userUid)
 exports.getMyStructs = async (req, res) => {
-  const { userUid } = req.params;
-  if (!userUid) {
-    return res.status(400).json({ message: "User UID is required." });
-  }
+   const authenticatedUserUid = req.user.uid;
+
   try {
-    const userRef = dbFirestore.collection('users').doc(userUid);
+    const userRef = dbFirestore.collection('users').doc(authenticatedUserUid);
     const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return res.status(404).json({ message: "User not found." });

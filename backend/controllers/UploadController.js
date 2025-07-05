@@ -107,31 +107,16 @@ exports.uploadStrukHandler = async (req, res) => {
         });
         return;
     }
-
-    fs.unlink(filePath, (err) => {
-        if (err) console.error('Error deleting temp file:', err);
-    });
-
-    // Kirim structuredData ke endpoint addReceiptToUser
-    try {
-      const { uid } = req.body; // pastikan uid dikirim dari frontend saat upload
-      if (!uid) {
-        return res.status(400).send({ message: 'User ID (uid) is required in request body.' });
-      }
-      // Ganti URL di bawah sesuai base URL backend Anda jika perlu
-      await axios.post(`${process.env.BACKEND_URL || 'http://localhost:1234'}/api/struct/add`, {
-        uid,
-        receipt: structuredData
-      });
-    } catch (err) {
-      return res.status(500).send({ message: 'Failed to add receipt to user.', error: err.message });
-    }
-
+    
     res.status(200).send({
       message: 'Image processed successfully and data extracted!',
       fileName: originalFileName,
       structuredData: structuredData,
       rawGeminiText: responseText
+    });
+
+    fs.unlink(filePath, (err) => {
+        if (err) console.error('Error deleting temp file:', err);
     });
 
   } catch (error) {
