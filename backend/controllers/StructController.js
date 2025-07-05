@@ -1,5 +1,6 @@
 const { admin } = require("../config/firebase");
 const { Receipt } = require("../models/User");
+const redisClient = require('../config/redis'); // tambahkan import redis
 
 // Add a receipt to a user (expects req.body.uid and req.body.receipt)
 exports.addStruct = async (req, res) => {
@@ -93,12 +94,22 @@ exports.getMyStructs = async (req, res) => {
   const db = req.db;
 
   try {
+    const cacheKey = `user:structs:${authenticatedUserUid}`;
+    const cachedStructs = await redisClient.get(cacheKey);
+    if (cachedStructs) {
+      return res.status(200).json(JSON.parse(cachedStructs));
+    }
+
     const userRef = db.collection('users').doc(authenticatedUserUid);
     const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return res.status(404).json({ message: "User not found." });
     }
     const receipts = userDoc.data().receipts || [];
+
+    // Simpan ke Redis selama 5 menit (300 detik)
+    await redisClient.setEx(cacheKey, 300, JSON.stringify(receipts));
+
     res.status(200).json(receipts);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch receipts.", error: error.message });
