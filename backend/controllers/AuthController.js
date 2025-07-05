@@ -1,5 +1,6 @@
 const { User } = require('../models/User');
-const { firebaseAuth } = require('../config/firebase');
+const { app, auth } = require('../config/firebase');
+const { signInWithEmailAndPassword, getAuth, signOut } = require('firebase/auth');
 
 function validatePassword(password) {
   if (password.length < 6) {
@@ -78,18 +79,16 @@ exports.register = async (req, res) => {
   }
 };
 
+
+// For Testing purposes, we can use Firebase's signInWithEmailAndPassword method
 exports.login = async (req, res) => {
   const { email, password } = req.body;
   if (!email || !password) {
     return res.status(400).send({ message: 'Email and password are required.' });
   }
   try {
-    const firebaseAuth = firebaseAuth.getAuth();
-    const clientAuth = firebaseAuth.getAuth(firebaseAuth.clientFirebase);
-    if (!clientAuth) {
-      return res.status(500).send({ message: 'Authentication service is not available.' });
-    }
-    const userCredential = await clientAuth.signInWithEmailAndPassword(email, password);
+    const auth = getAuth(app);
+    const userCredential = await signInWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     const token = await user.getIdToken();
     res.status(200).send({
@@ -100,6 +99,7 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     let message = 'Login failed.';
+    console.log(error.code)
     if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
       message = 'Invalid email or password.';
       return res.status(401).send({ message });
@@ -108,13 +108,18 @@ exports.login = async (req, res) => {
       message = 'Invalid email format.';
       return res.status(400).send({ message });
     }
+    if (error.code === 'auth/invalid-credential') {
+      message = 'Invalid credentials provided. Please check your email and password.';
+      return res.status(400).send({ message });
+    }
     res.status(500).send({ message, error: error.message });
   }
 };
 
 exports.logout = async (req, res) => {
   try {
-    await clientAuth.auth().signOut();
+    const uid = req.user.uid;
+    await auth.revokeRefreshTokens(uid);
     res.status(200).send({ message: 'Logout successful!' });
   } catch (error) {
     res.status(500).send({ message: 'Logout failed.', error: error.message });
