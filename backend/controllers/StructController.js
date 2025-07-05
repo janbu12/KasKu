@@ -79,3 +79,22 @@ exports.deleteStruct = async (req, res) => {
     res.status(500).json({ message: "Failed to delete receipt.", error: error.message });
   }
 };
+
+// Get all receipts for a user (expects req.params.userUid)
+exports.getMyStructs = async (req, res) => {
+  const { userUid } = req.params;
+  if (!userUid) {
+    return res.status(400).json({ message: "User UID is required." });
+  }
+  try {
+    const userRef = dbFirestore.collection('users').doc(userUid);
+    const userDoc = await userRef.get();
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: "User not found." });
+    }
+    const receipts = userDoc.data().receipts || [];
+    res.status(200).json(receipts);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch receipts.", error: error.message });
+  }
+};
