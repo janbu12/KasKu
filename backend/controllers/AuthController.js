@@ -28,6 +28,11 @@ exports.register = async (req, res) => {
     return res.status(400).send({ message: 'Username, email, and password are required.' });
   }
 
+  const usernameSnapshot = await db.collection('users').where('username', '==', username).get();
+  if (!usernameSnapshot.empty) {
+    return res.status(409).send({ message: 'Username already in use. Please choose a different username.' });
+  }
+
   const passwordError = validatePassword(password);
   if (passwordError) {
     return res.status(400).send({ message: passwordError });
