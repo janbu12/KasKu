@@ -26,7 +26,7 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 
 1. **Clone repository ini**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/janbu12/KasKu.git
    cd backend
    ```
 
@@ -70,11 +70,13 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 - **Request Body:**
   ```json
   {
-    "username": "string",
-    "email": "string",
-    "password": "string"
+    "username": "string",      // required
+    "email": "string",         // required
+    "password": "string"       // required
   }
   ```
+  - Semua field **required** dan tidak boleh null.
+
 - **Response:**
   - **201 Created**
     ```json
@@ -92,10 +94,12 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 - **Request Body:**
   ```json
   {
-    "email": "string",
-    "password": "string"
+    "email": "string",         // required
+    "password": "string"       // required
   }
   ```
+  - Semua field **required** dan tidak boleh null.
+
 - **Response:**
   - **200 OK**
     ```json
@@ -145,13 +149,16 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 - **Request Body:**
   ```json
   {
-    "occupation": "string",
-    "income": 0,
-    "financialGoals": "string",
-    "currency": "string",
-    // ...additional fields
+    "occupation": "string",         // required, tidak boleh null
+    "income": 0,                    // required, tidak boleh null
+    "financialGoals": "string",     // required, tidak boleh null
+    "currency": "string",           // optional, boleh null (default: "IDR")
+    // ...field tambahan lain (optional, boleh null)
   }
   ```
+  - Field **occupation**, **income**, dan **financialGoals** wajib diisi.
+  - Field **currency** dan field tambahan lain **optional** (boleh null).
+
 - **Response:**
   - **200 OK**
     ```json
@@ -205,9 +212,32 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 - **Request Body:**
   ```json
   {
-    "receipt": { ... }
+    "receipt": {
+      "merchant_name": "string",             // required
+      "transaction_date": "YYYY-MM-DD",      // required
+      "transaction_time": "HH:MM",           // required
+      "items": [
+        {
+          "item_name": "string",             // required
+          "quantity": 0,                     // required
+          "unit_price": 0,                   // required
+          "total_price_item": 0              // required
+        }
+      ],
+      "subtotal": 0,                         // required
+      "discount_amount": 0,                  // optional, boleh null
+      "additional_charges": 0,               // optional, boleh null
+      "tax_amount": 0,                       // optional, boleh null
+      "final_total": 0,                      // required
+      "tender_type": "string",               // optional, boleh null
+      "amount_paid": 0,                      // optional, boleh null
+      "change_given": 0                      // optional, boleh null
+    }
   }
   ```
+  - Semua field tanpa keterangan **optional** adalah **required** dan tidak boleh null.
+  - Field dengan keterangan **optional, boleh null** dapat diisi null jika tidak ada datanya.
+
 - **Response:**
   - **200 OK**
     ```json
@@ -224,9 +254,13 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 - **Request Body:**
   ```json
   {
-    "receipt": { ... }
+    "receipt": {
+      // Struktur sama seperti Add Receipt, field yang ingin diubah saja yang perlu diisi
+    }
   }
   ```
+  - Hanya field yang ingin diubah yang perlu diisi, sisanya boleh tidak ada.
+
 - **Response:**
   - **200 OK**
     ```json
@@ -251,7 +285,8 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 #### 📤 Upload Struk Image
 - **POST** `/api/upload/struct`
 - **Headers:** `Authorization: Bearer <token>`
-- **Form Data:** `struk_image` (file, required)
+- **Form Data:** 
+  - `struk_image` (file, required)
 - **Response:**
   - **200 OK**
     ```json
