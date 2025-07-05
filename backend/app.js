@@ -5,25 +5,19 @@ const cors = require('cors');
 const admin = require('firebase-admin');
 const authRoutes = require('./routes/auth');
 const apiRoutes = require('./routes/api');
-
-const serviceAccount = require('./serviceAccountKey.json');
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-});
-
-const db = admin.firestore();
-const auth = admin.auth();
+const { dbFirestore, auth } = require('./config/firebase');
 
 const app = express();
 const PORT = process.env.PORT;
+
+require('./config/firebase');
 
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
-  req.db = db;
+  req.db = dbFirestore;
   req.auth = auth;
   next();
 });
