@@ -40,6 +40,16 @@ exports.updateProfileUser = async (req, res) => {
   if (!uid || !userProfile) {
     return res.status(400).json({ message: "User ID (uid) and userProfile data are required." });
   }
+
+  // Validasi
+  const requiredFields = ['occupation', 'income', 'financialGoals'];
+  const missingFields = requiredFields.filter(field => !userProfile[field]);
+  if (missingFields.length > 0) {
+    return res.status(400).json({
+      message: `Field(s) required: ${missingFields.join(', ')}`
+    });
+  }
+
   try {
     // Validate and construct UserProfile
     const updatedProfile = new UserProfile(
