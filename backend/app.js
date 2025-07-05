@@ -2,8 +2,8 @@ require('dotenv').config();
 
 const express = require('express');
 const cors = require('cors');
-const authRoutes = require('./routes/auth');
-const apiRoutes = require('./routes/api');
+const authRoutes = require('./routes/authRoutes');
+const apiRoutes = require('./routes');
 const { dbFirestore, auth } = require('./config/firebase');
 
 const app = express();
