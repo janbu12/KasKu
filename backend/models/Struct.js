@@ -4,6 +4,7 @@
  */
 class Receipt {
   /**
+   * @param {string} id
    * @param {string|null} merchant_name
    * @param {string} transaction_date
    * @param {string} transaction_time
@@ -18,6 +19,7 @@ class Receipt {
    * @param {number|null} change_given
    */
   constructor(
+    id,
     merchant_name = null,
     transaction_date,
     transaction_time,
@@ -31,6 +33,7 @@ class Receipt {
     amount_paid = null,
     change_given = null
   ) {
+    this.id = id;
     this.merchant_name = merchant_name;
     this.transaction_date = transaction_date;
     this.transaction_time = transaction_time;
@@ -50,6 +53,7 @@ class Receipt {
    */
   toFirestore() {
     return {
+      id: this.id,
       merchant_name: this.merchant_name,
       transaction_date: this.transaction_date,
       transaction_time: this.transaction_time,
@@ -72,6 +76,7 @@ class Receipt {
    */
   static fromFirestore(data) {
     return new Receipt(
+      data.id,
       data.merchant_name,
       data.transaction_date,
       data.transaction_time,
