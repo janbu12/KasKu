@@ -42,6 +42,7 @@ class UserProfile {
   }
 }
 
+const { Receipt } = require('./Struct.js');
 
 class User {
   /**
@@ -51,14 +52,16 @@ class User {
    * @param {Date} createdAt - Tanggal dan waktu akun dibuat.
    * @param {boolean} profileCompleted - Flag apakah profil tambahan sudah diisi.
    * @param {UserProfile|null} [userProfile=null] - Instance UserProfile jika sudah ada.
+   * @param {Array<Receipt>} [receipts=[]] - Daftar struk milik user.
    */
-  constructor(uid, username, email, createdAt, profileCompleted = false, userProfile = null) {
+  constructor(uid, username, email, createdAt, profileCompleted = false, userProfile = null, receipts = []) {
     this.uid = uid;
     this.username = username;
     this.email = email;
     this.createdAt = createdAt;
     this.profileCompleted = profileCompleted;
     this.userProfile = userProfile; // Akan menjadi instance UserProfile
+    this.receipts = receipts; // Array of Receipt
   }
 
   /**
@@ -72,7 +75,8 @@ class User {
       email: this.email,
       createdAt: this.createdAt,
       profileCompleted: this.profileCompleted,
-      userProfile: this.userProfile ? this.userProfile.toFirestore() : null
+      userProfile: this.userProfile ? this.userProfile.toFirestore() : null,
+      receipts: this.receipts ? this.receipts.map(r => r.toFirestore()) : []
     };
   }
 
@@ -83,13 +87,14 @@ class User {
    * @returns {User} Instance User.
    */
   static fromFirestore(uid, data) {
-    const { username, email, createdAt, profileCompleted, userProfile } = data;
+    const { username, email, createdAt, profileCompleted, userProfile, receipts } = data;
     const profile = userProfile ? UserProfile.fromFirestore(userProfile) : null;
     // createdAt dari Firestore bisa berupa Timestamp, konversi ke Date object
     const createdDate = createdAt && createdAt.toDate ? createdAt.toDate() : createdAt;
-    return new User(uid, username, email, createdDate, profileCompleted, profile);
+    const receiptsArr = Array.isArray(receipts) ? receipts.map(r => Receipt.fromFirestore(r)) : [];
+    return new User(uid, username, email, createdDate, profileCompleted, profile, receiptsArr);
   }
 }
 
-// Export kedua kelas
-module.exports = { User, UserProfile };
+// Export semua kelas
+module.exports = { User, UserProfile, Receipt };
