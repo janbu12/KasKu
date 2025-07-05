@@ -48,12 +48,22 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
      FIREBASE_MESSAGING_SENDER_ID=...
      FIREBASE_APP_ID=...
      FIREBASE_MEASUREMENT_ID=...
+     REDIS_URL=...
      ```
 
 4. **Letakkan file service account Firebase**
    - Simpan file `serviceAccountKey.json` di lokasi yang sesuai dengan variabel `FIREBASE_SERVICE_ACCOUNT_PATH` pada `.env`.
 
-5. **Jalankan server backend**
+5. **Setup Redis di docker atau di cloud**
+   - Daftar di [Redis Free Tier](https://redis.io/try-free/)!
+   - Lalu hubungkan dengan url redisnya
+   - Jika di docker anda bisa pull
+      ```bash
+      docker run redis
+      ```
+   - Lalu buat container dengan image redis 
+
+6. **Jalankan server backend**
    ```bash
    npm start
    ```
@@ -126,8 +136,8 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 
 ### 👤 User
 
-#### 👁️ Get Profile User
-- **GET** `/api/users/:uid`
+#### 👁️ Get My Profile
+- **GET** `/api/users/me`
 - **Headers:** `Authorization: Bearer <token>`
 - **Response:**
   - **200 OK**
@@ -143,8 +153,8 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
     ```
   - **Error:** 400/403/404/500
 
-#### ✏️ Update Profile User
-- **PUT** `/api/users/:uid/profile`
+#### ✏️ Update My Profile
+- **PUT** `/api/users/me/profile`
 - **Headers:** `Authorization: Bearer <token>`
 - **Request Body:**
   ```json
@@ -207,7 +217,7 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
   - **Error:** 404/500
 
 #### ➕ Add Receipt
-- **POST** `/api/struct/add`
+- **POST** `/api/structs`
 - **Headers:** `Authorization: Bearer <token>`
 - **Request Body:**
   ```json
@@ -249,7 +259,7 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
   - **Error:** 400/404/500
 
 #### 📝 Edit Receipt
-- **PUT** `/api/struct/edit/:id`
+- **PUT** `/api/structs/:id`
 - **Headers:** `Authorization: Bearer <token>`
 - **Request Body:**
   ```json
@@ -269,7 +279,7 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
   - **Error:** 400/404/500
 
 #### 🗑️ Delete Receipt
-- **DELETE** `/api/struct/delete/:id`
+- **DELETE** `/api/structs/:id`
 - **Headers:** `Authorization: Bearer <token>`
 - **Response:**
   - **200 OK**
@@ -283,7 +293,7 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 ### 🤖 Upload Receipt Image (AI Extraction)
 
 #### 📤 Upload Struk Image
-- **POST** `/api/upload/struct`
+- **POST** `/api/structs/upload`
 - **Headers:** `Authorization: Bearer <token>`
 - **Form Data:** 
   - `struk_image` (file, required)
