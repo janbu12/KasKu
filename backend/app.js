@@ -10,6 +10,7 @@ const app = express();
 const PORT = process.env.PORT;
 
 require('./config/firebase');
+require('./config/redis');
 
 app.use(cors());
 app.use(express.json());
