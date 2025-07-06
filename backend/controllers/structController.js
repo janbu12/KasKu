@@ -24,6 +24,12 @@ exports.addStruct = async (req, res) => {
     await userRef.update({
       receipts: admin.firestore.FieldValue.arrayUnion(receiptInstance.toFirestore())
     });
+
+    // Clear the cache for this user's receipts
+    // This ensures that the next time receipts are fetched, they will be retrieved from the database
+    const cacheKey = `user:structs:${authenticatedUserUid}`;
+    await redisClient.del(cacheKey);
+
     res.status(200).json({ message: "Receipt added successfully.", id: receiptId });
   } catch (error) {
     res.status(500).json({ message: "Failed to add receipt.", error: error.message });
@@ -53,6 +59,12 @@ exports.editStruct = async (req, res) => {
     }
 
     receipts[idx] = { ...receipts[idx], ...receipt, id };
+
+    // Clear the cache for this user's receipts
+    // This ensures that the next time receipts are fetched, they will be retrieved from the database
+    const cacheKey = `user:structs:${authenticatedUserUid}`;
+    await redisClient.del(cacheKey);
+
     await userRef.update({ receipts });
     res.status(200).json({ message: "Receipt updated successfully." });
   } catch (error) {
@@ -82,6 +94,12 @@ exports.deleteStruct = async (req, res) => {
       return res.status(404).json({ message: "Receipt not found." });
     }
     await userRef.update({ receipts: newReceipts });
+
+    // Clear the cache for this user's receipts
+    // This ensures that the next time receipts are fetched, they will be retrieved from the database
+    const cacheKey = `user:structs:${authenticatedUserUid}`;
+    await redisClient.del(cacheKey);
+
     res.status(200).json({ message: "Receipt deleted successfully." });
   } catch (error) {
     res.status(500).json({ message: "Failed to delete receipt.", error: error.message });
@@ -107,8 +125,8 @@ exports.getMyStructs = async (req, res) => {
     }
     const receipts = userDoc.data().receipts || [];
 
-    // Simpan ke Redis selama 5 menit (300 detik)
-    await redisClient.setEx(cacheKey, 300, JSON.stringify(receipts));
+    // Simpan ke Redis selama 1 Jam (3600 detik)
+    await redisClient.setEx(cacheKey, 3600, JSON.stringify(receipts));
 
     res.status(200).json(receipts);
   } catch (error) {

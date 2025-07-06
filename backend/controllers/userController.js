@@ -47,8 +47,8 @@ exports.getMyProfile = async (req, res) => {
       userProfile: user.userProfile ?? null
     };
 
-    // Simpan ke Redis selama 5 menit (300 detik)
-    await redisClient.setEx(cacheKey, 300, JSON.stringify(filteredUser));
+    // Simpan ke Redis selama 1 Jam (3600 detik)
+    await redisClient.setEx(cacheKey, 3600, JSON.stringify(filteredUser));
 
     res.status(200).json(filteredUser);
   } catch (error) {
@@ -79,6 +79,11 @@ exports.updateMyProfile = async (req, res) => {
           userProfile: newUserProfile.toFirestore(),
           profileCompleted: true
       });
+
+      // Clear the cache for this user's receipts
+      // This ensures that the next time receipts are fetched, they will be retrieved from the database
+      const cacheKey = `user:profile:${authenticatedUserUid}`;
+      await redisClient.del(cacheKey);
 
       res.status(200).send({ message: 'User profile updated successfully!', updatedProfile: newUserProfile.toFirestore() });
 
