@@ -1,4 +1,4 @@
-const { admin } = require("../config/firebase");
+const { admin, dbFirestore } = require("../config/firebase");
 const { Receipt } = require("../models/User");
 const redisClient = require('../config/redis'); // tambahkan import redis
 
@@ -110,26 +110,75 @@ exports.deleteStruct = async (req, res) => {
 exports.getMyStructs = async (req, res) => {
   const authenticatedUserUid = req.user.uid;
   const db = req.db;
+  const { startDate, endDate } = req.query;
 
   try {
+    // Gunakan cache hanya jika tidak ada filter
+    const useCache = !startDate && !endDate;
     const cacheKey = `user:structs:${authenticatedUserUid}`;
-    const cachedStructs = await redisClient.get(cacheKey);
-    if (cachedStructs) {
-      return res.status(200).json(JSON.parse(cachedStructs));
+
+    if (useCache) {
+      const cachedStructs = await redisClient.get(cacheKey);
+      if (cachedStructs) {
+        return res.status(200).json(JSON.parse(cachedStructs));
+      }
     }
 
     const userRef = db.collection('users').doc(authenticatedUserUid);
     const userDoc = await userRef.get();
+
     if (!userDoc.exists) {
       return res.status(404).json({ message: "User not found." });
     }
+
     const receipts = userDoc.data().receipts || [];
 
-    // Simpan ke Redis selama 1 Jam (3600 detik)
-    await redisClient.setEx(cacheKey, 3600, JSON.stringify(receipts));
+    // Jika ada filter tanggal, lakukan filter manual
+    let result = receipts;
+    if (startDate && endDate) {
+      result = receipts.filter(receipt =>
+        receipt.transaction_date >= startDate &&
+        receipt.transaction_date <= endDate
+      );
+    }
 
-    res.status(200).json(receipts);
+    // Simpan ke cache hanya jika tidak pakai filter
+    if (useCache) {
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(result));
+    }
+
+    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch receipts.", error: error.message });
+  }
+};
+
+exports.getMyStructById = async (req, res) => {
+  const authenticatedUserUid = req.user.uid;
+  const receiptId = req.params.id;
+  const db = req.db;
+
+  if (!receiptId) {
+    return res.status(400).json({ message: "Receipt ID is required." });
+  }
+
+  try {
+    const userRef = db.collection('users').doc(authenticatedUserUid);
+    const userDoc = await userRef.get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const receipts = userDoc.data().receipts || [];
+    const receipt = receipts.find(r => r.id === receiptId);
+
+    if (!receipt) {
+      return res.status(404).json({ message: "Receipt not found." });
+    }
+
+    res.status(200).json(receipt);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch receipt.", error: error.message });
   }
 };
