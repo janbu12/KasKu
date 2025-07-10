@@ -1,25 +1,7 @@
 const { User } = require('../models/User');
 const { app, auth } = require('../config/firebase');
 const { signInWithEmailAndPassword, getAuth, signOut } = require('firebase/auth');
-
-function validatePassword(password) {
-  if (password.length < 6) {
-    return 'Password must be at least 6 characters long.';
-  }
-  if (!/[A-Z]/.test(password)) {
-    return 'Password must contain at least one uppercase letter.';
-  }
-  if (!/[a-z]/.test(password)) {
-    return 'Password must contain at least one lowercase letter.';
-  }
-  if (!/[0-9]/.test(password)) {
-    return 'Password must contain at least one number.';
-  }
-  if (!/[^A-Za-z0-9]/.test(password)) {
-    return 'Password must contain at least one special character/symbol.';
-  }
-  return null;
-}
+const authService = require('../services/authService');
 
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
@@ -30,40 +12,13 @@ exports.register = async (req, res) => {
     return res.status(400).send({ message: 'Username, email, and password are required.' });
   }
 
-  const usernameSnapshot = await db.collection('users').where('username', '==', username).get();
-  if (!usernameSnapshot.empty) {
-    return res.status(409).send({ message: 'Username already in use. Please choose a different username.' });
-  }
-
-  const passwordError = validatePassword(password);
-  if (passwordError) {
-    return res.status(400).send({ message: passwordError });
-  }
-
   try {
-    const userRecord = await auth.createUser({
-      email: email,
-      password: password,
-      displayName: username,
-    });
-
-    const newUser = new User(
-      userRecord.uid,
-      username,
-      email,
-      new Date(),
-      false
-    );
-
-    // Use userRecord.uid as document ID for consistency
-    const userRef = db.collection('users').doc(newUser.uid);
-    await userRef.set(newUser.toFirestore());
-
+    const userData = await authService.registerUser(username, email, password, auth, db);
     res.status(201).send({
       message: 'User registered successfully!',
-      userId: newUser.uid,
-      email: newUser.email,
-      username: newUser.username
+      userId: userData.uid,
+      email: userData.email,
+      username: userData.username
     });
 
   } catch (error) {
@@ -75,6 +30,9 @@ exports.register = async (req, res) => {
     if (error.code === 'auth/invalid-email') {
       return res.status(400).send({ message: 'Invalid email format.' });
     }
+    if (error.code === 'auth/invalid-password-format' || error.code === 'auth/invalid-email') {
+          return res.status(400).send({ message: error.message });
+      }
     res.status(500).send({ message: 'Failed to register user.', error: error.message });
   }
 };
@@ -88,14 +46,12 @@ exports.login = async (req, res) => {
   }
   try {
     const auth = getAuth(app);
-    const userCredential = await signInWithEmailAndPassword(auth, email, password);
-    const user = userCredential.user;
-    const token = await user.getIdToken();
+    const loginData = await authService.loginUser(email, password, auth);
     res.status(200).send({
       message: 'Login successful!',
-      uid: user.uid,
-      email: user.email,
-      token
+      uid: loginData.uid,
+      email: loginData.email,
+      token: loginData.token
     });
   } catch (error) {
     let message = 'Login failed.';
@@ -119,7 +75,7 @@ exports.login = async (req, res) => {
 exports.logout = async (req, res) => {
   try {
     const uid = req.user.uid;
-    await auth.revokeRefreshTokens(uid);
+    authService.logoutUser(uid);
     res.status(200).send({ message: 'Logout successful!' });
   } catch (error) {
     res.status(500).send({ message: 'Logout failed.', error: error.message });
