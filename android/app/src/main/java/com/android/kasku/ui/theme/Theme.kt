@@ -19,10 +19,12 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Green80,
-    secondary = Orange40,
-    tertiary = Charcoal80,
+    primary = Green400,
+    secondary = Green200,
+    tertiary = Green600,
     background = Color.White,
+    outline = Green300,
+    onSurface = Green500
 
 
     /* Other default colors to override

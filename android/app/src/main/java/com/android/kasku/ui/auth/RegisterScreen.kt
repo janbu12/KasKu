@@ -1,8 +1,11 @@
 package com.android.kasku.ui.auth
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -13,7 +16,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -22,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.android.kasku.R
 import com.android.kasku.navigation.AppRoutes
 import com.android.kasku.ui.common.CustomButton
 import com.android.kasku.ui.theme.KasKuTheme
@@ -58,96 +64,167 @@ fun RegisterScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(
-                text = "Daftar Akun Baru",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = Modifier.padding(bottom = 28.dp)
-            )
-
-            OutlinedTextField(
-                value = currentUsername,
-                onValueChange = { authViewModel.onRegisterUsernameChange(it) },
-                label = { Text("Username") },
-                leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Username Icon") },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                isError = currentErrorMessage != null && currentErrorMessage.contains("username", ignoreCase = true) == true
-            )
-
-            OutlinedTextField(
-                value = currentEmail,
-                onValueChange = { authViewModel.onRegisterEmailChange(it) },
-                label = { Text("Email") },
-                leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email Icon") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                isError = currentErrorMessage != null && currentErrorMessage.contains("email", ignoreCase = true) == true
-            )
-
-            OutlinedTextField(
-                value = currentPassword,
-                onValueChange = { authViewModel.onRegisterPasswordChange(it) },
-                label = { Text("Password") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password Icon") },
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    val image = if (passwordVisible)
-                        Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(imageVector  = image, contentDescription = "Toggle password visibility")
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                isError = currentErrorMessage != null && currentErrorMessage.contains("password", ignoreCase = true) == true
-            )
-
-            OutlinedTextField(
-                value = currentConfirmPassword,
-                onValueChange = { authViewModel.onRegisterConfirmPasswordChange(it) },
-                label = { Text("Konfirmasi Password") },
-                leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Confirm Password Icon") },
-                visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                trailingIcon = {
-                    val image = if (confirmPasswordVisible)
-                        Icons.Filled.Visibility
-                    else Icons.Filled.VisibilityOff
-                    IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
-                        Icon(imageVector  = image, contentDescription = "Toggle confirm password visibility")
-                    }
-                },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
-                isError = currentErrorMessage != null && currentErrorMessage.contains("match", ignoreCase = true) == true
-            )
-
-            if (currentErrorMessage != null) {
-                Text(
-                    text = currentErrorMessage,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(bottom = 16.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 47.dp),
+                horizontalArrangement = Arrangement.Start
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.register_picture),
+                    contentDescription = "Login Illustration",
                 )
             }
 
-            CustomButton(
-                text = "Register",
-                onClick = { authViewModel.registerUser() },
-                modifier = Modifier.fillMaxWidth(),
-                enabled = !currentIsLoading,
-                isLoading = currentIsLoading
-            )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(43.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Daftar Akun Baru",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 28.dp)
+                )
 
-            Spacer(modifier = Modifier.height(16.dp))
+                OutlinedTextField(
+                    value = currentUsername,
+                    onValueChange = { authViewModel.onRegisterUsernameChange(it) },
+                    label = { Text("Username") },
+                    leadingIcon = { Icon(Icons.Default.Person, contentDescription = "Username Icon") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+                        focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.outline,
+                        unfocusedTrailingIconColor = MaterialTheme.colorScheme.outline,
+                        unfocusedLeadingIconColor = MaterialTheme.colorScheme.outline,
+                        errorLeadingIconColor = Color.Red,
+                        errorTrailingIconColor = Color.Red
+                    ),
+                    isError = currentErrorMessage != null && currentErrorMessage.contains("username", ignoreCase = true) == true
+                )
 
-            TextButton(onClick = {
-                navController.popBackStack()
-                authViewModel.resetRegisterState()
-            }) {
-                Text("Sudah punya akun? Login di sini.")
+                OutlinedTextField(
+                    value = currentEmail,
+                    onValueChange = { authViewModel.onRegisterEmailChange(it) },
+                    label = { Text("Email") },
+                    leadingIcon = { Icon(Icons.Default.Email, contentDescription = "Email Icon") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+                        focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.outline,
+                        unfocusedTrailingIconColor = MaterialTheme.colorScheme.outline,
+                        unfocusedLeadingIconColor = MaterialTheme.colorScheme.outline,
+                        errorLeadingIconColor = Color.Red,
+                        errorTrailingIconColor = Color.Red
+                    ),
+                    isError = currentErrorMessage != null && currentErrorMessage.contains("email", ignoreCase = true) == true
+                )
+
+                OutlinedTextField(
+                    value = currentPassword,
+                    onValueChange = { authViewModel.onRegisterPasswordChange(it) },
+                    label = { Text("Password") },
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Password Icon") },
+                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        val image = if (passwordVisible)
+                            Icons.Filled.Visibility
+                        else Icons.Filled.VisibilityOff
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(imageVector  = image, contentDescription = "Toggle password visibility")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+                        focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.outline,
+                        unfocusedTrailingIconColor = MaterialTheme.colorScheme.outline,
+                        unfocusedLeadingIconColor = MaterialTheme.colorScheme.outline,
+                        errorLeadingIconColor = Color.Red,
+                        errorTrailingIconColor = Color.Red
+                    ),
+                    isError = currentErrorMessage != null && currentErrorMessage.contains("password", ignoreCase = true) == true
+                )
+
+                OutlinedTextField(
+                    value = currentConfirmPassword,
+                    onValueChange = { authViewModel.onRegisterConfirmPasswordChange(it) },
+                    label = { Text("Konfirmasi Password") },
+                    leadingIcon = { Icon(Icons.Default.Lock, contentDescription = "Confirm Password Icon") },
+                    visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        val image = if (confirmPasswordVisible)
+                            Icons.Filled.Visibility
+                        else Icons.Filled.VisibilityOff
+                        IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                            Icon(imageVector  = image, contentDescription = "Toggle confirm password visibility")
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        focusedTextColor = MaterialTheme.colorScheme.primary,
+                        focusedLabelColor = MaterialTheme.colorScheme.primary,
+                        focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+                        focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.outline,
+                        unfocusedTrailingIconColor = MaterialTheme.colorScheme.outline,
+                        unfocusedLeadingIconColor = MaterialTheme.colorScheme.outline,
+                        errorLeadingIconColor = Color.Red,
+                        errorTrailingIconColor = Color.Red
+                    ),
+                    isError = currentErrorMessage != null && currentErrorMessage.contains("match", ignoreCase = true) == true
+                )
+
+                if (currentErrorMessage != null) {
+                    Text(
+                        text = currentErrorMessage,
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+                }
+
+                CustomButton(
+                    text = "Register",
+                    onClick = { authViewModel.registerUser() },
+                    modifier = Modifier.fillMaxWidth(),
+                    enabled = !currentIsLoading,
+                    isLoading = currentIsLoading
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                TextButton(onClick = {
+                    navController.popBackStack()
+                    authViewModel.resetRegisterState()
+                }) {
+                    Text("Sudah punya akun? Login di sini.")
+                }
             }
         }
     }

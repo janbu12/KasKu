@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -20,6 +21,7 @@ import com.android.kasku.ui.auth.LoginScreen
 import com.android.kasku.ui.auth.AuthViewModel
 import com.android.kasku.MainScreen
 import com.android.kasku.ui.auth.RegisterScreen
+import com.android.kasku.ui.splash.WelcomeScreen
 
 @Composable
 fun AppNavHost() {
@@ -32,8 +34,26 @@ fun AppNavHost() {
 
     var splashAnimationFinished by remember { mutableStateOf(false) }
 
+    val context = LocalContext.current
+
+    var showWelcome by remember { mutableStateOf<Boolean?>(null) }
+
+
     LaunchedEffect(key1 = splashAnimationFinished, key2 = authCheckCompleted, key3 = isUserLoggedIn) {
-        if (splashAnimationFinished && authCheckCompleted) {
+        if (splashAnimationFinished && authCheckCompleted && showWelcome == null) {
+            // Cek apakah welcome sudah ditampilkan sebelumnya
+            val hasSeenWelcome = OnboardingPreferenceManager.isOnboardingShown(context)
+            showWelcome = !hasSeenWelcome
+
+            if (showWelcome == true) {
+                navController.navigate(AppRoutes.WELCOME_SCREEN) {
+                    popUpTo(AppRoutes.SPLASH_SCREEN) { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+        }
+
+        if (splashAnimationFinished && authCheckCompleted && showWelcome == false) {
             val splashScreenRouteId = navController.graph.findStartDestination().id
 
             if (isUserLoggedIn) {
@@ -56,13 +76,18 @@ fun AppNavHost() {
 
     NavHost(navController = navController, startDestination = AppRoutes.SPLASH_SCREEN) {
         composable(AppRoutes.SPLASH_SCREEN) {
-            SplashScreen(navController = navController, onAnimationFinished = { splashAnimationFinished = true })
+            SplashScreen(navController = navController) {
+                splashAnimationFinished = true
+            }
         }
         composable(AppRoutes.LOGIN_SCREEN) {
             LoginScreen(navController = navController, authViewModel = authViewModel)
         }
         composable(AppRoutes.REGISTER_SCREEN) {
             RegisterScreen(navController = navController, authViewModel = authViewModel)
+        }
+        composable(AppRoutes.WELCOME_SCREEN) {
+            WelcomeScreen(navController = navController)
         }
 
         navigation(
