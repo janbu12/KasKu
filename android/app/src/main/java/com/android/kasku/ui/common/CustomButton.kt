@@ -17,13 +17,13 @@ fun CustomButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    isLoading: Boolean = false
+    isLoading: Boolean = false,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(4.dp),
         contentPadding = PaddingValues(vertical = 12.dp)
     ) {
         if (isLoading) {
