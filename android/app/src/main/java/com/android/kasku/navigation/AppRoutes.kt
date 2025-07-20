@@ -8,5 +8,7 @@ object AppRoutes {
     // Tambahkan rute lain di sini
     const val APP_GRAPH_ROOT = "app_graph_root"
     const val WELCOME_SCREEN = "welcome_screen"
+    const val ADD_STRUCT_SCREEN = "add_struct_screen"
+
 
 }

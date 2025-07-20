@@ -22,6 +22,7 @@ import com.android.kasku.ui.auth.AuthViewModel
 import com.android.kasku.MainScreen
 import com.android.kasku.ui.auth.RegisterScreen
 import com.android.kasku.ui.splash.WelcomeScreen
+import com.android.kasku.ui.structs.AddStructScreen
 
 @Composable
 fun AppNavHost() {
@@ -89,6 +90,9 @@ fun AppNavHost() {
         composable(AppRoutes.WELCOME_SCREEN) {
             WelcomeScreen(navController = navController)
         }
+        composable(AppRoutes.ADD_STRUCT_SCREEN) {
+            AddStructScreen()
+        }
 
         navigation(
             startDestination = BottomNavItem.Dashboard.route,
@@ -100,7 +104,10 @@ fun AppNavHost() {
             composable(BottomNavItem.Structs.route) {
                 MainScreen(navController = navController, authViewModel = authViewModel)
             }
-            composable(BottomNavItem.Me.route) {
+            composable(BottomNavItem.Profile.route) {
+                MainScreen(navController = navController, authViewModel = authViewModel)
+            }
+            composable(BottomNavItem.Setting.route) {
                 MainScreen(navController = navController, authViewModel = authViewModel)
             }
         }
