@@ -311,6 +311,87 @@ KasKu bukan sekadar aplikasi pencatat keuangan. ini adalah asisten finansial cer
 
 ---
 
+### 📊 Dashboard
+
+#### 📅 Get Dashboard Data
+- **GET** `/api/dashboard`
+- **Headers:** `Authorization: Bearer <token>`
+- **Response:**
+  - **200 OK**
+    ```json
+    {
+      "lineChartData": [
+        {
+          "day": 1,
+          "income": 100000,
+          "expense": 34000
+        },
+        ...
+      ],
+      "pieChartData": [
+        {
+          "category": "makanan",
+          "amount": 250000,
+          "percentage": 45
+        },
+        ...
+      ],
+      "totalMonthSpending": 550000,
+      "totalYearSpending": 3700000,
+      "income": 1500000,
+      "totalSpendingToday": 45000,
+      "overspentCategoriesMonthly": [],
+      "overspentCategoriesDaily": [
+          {
+              "category": "cigerattes",
+              "amount": 62095,
+              "exceededBy": 29836.935483870966,
+              "percentage": "192.49%"
+          }
+      ],
+       "monthReceipts": [
+        {
+           //transactions model data
+        }
+       ]
+    }
+    ```
+  - **Error:** 500
+  
+  #### 📅 Get Insigt Financial from AI Gemini
+- **GET** `/api/dashboard/insights`
+- **Headers:** `Authorization: Bearer <token>`
+- **Request Body:** 
+  ```json
+  {
+    "income": 1000000,
+    "monthReceipts": [
+      {
+          //transactions model data
+      }
+    ]
+  }
+  ```
+- **Response:**
+  - **200 OK**
+    ```json
+    {
+        "message": "Insight berhasil dihasilkan.",
+        "insights": {
+            "saran": "Pengeluaran Anda cukup besar untuk rokok. Pertimbangkan untuk mengurangi konsumsi atau mencari alternatif yang lebih murah.",
+            "peringatan": "Pengeluaran Anda untuk rokok mencapai 77295 atau sekitar 7.7% dari total pendapatan Anda. Ini bisa berdampak signifikan pada kesehatan dan keuangan Anda.",
+            "rekomendasi_aksi": [
+                "Buat anggaran bulanan dan alokasikan dana untuk setiap kategori pengeluaran.",
+                "Cari alternatif yang lebih murah untuk kebutuhan sehari-hari.",
+                "Pertimbangkan untuk mengurangi atau berhenti merokok untuk menghemat uang dan meningkatkan kesehatan."
+            ]
+        }
+    }
+    ```
+  - **Error:** 500
+
+---
+
 **ℹ️ Note:**  
 All endpoints requiring authentication must include the header:  
 `Authorization: Bearer <Firebase ID Token>`
