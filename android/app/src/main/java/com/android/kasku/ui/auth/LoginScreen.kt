@@ -30,6 +30,7 @@ import com.android.kasku.navigation.AppRoutes // Pastikan ini diimpor
 import com.android.kasku.ui.common.CustomButton
 import com.android.kasku.ui.theme.KasKuTheme // Sesuaikan tema Anda
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import com.android.kasku.R
 
 @OptIn(ExperimentalMaterial3Api::class) // Untuk Scaffold dan OutlinedTextField
@@ -43,12 +44,20 @@ fun LoginScreen(
     val currentIsLoading = authViewModel.isLoading
     val currentErrorMessage = authViewModel.errorMessage
     val currentLoginSuccess = authViewModel.loginSuccess
+    val isUserLoggedIn by rememberUpdatedState(authViewModel.isUserLoggedIn)
 
     var passwordVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = currentLoginSuccess) {
+    LaunchedEffect(key1 = currentLoginSuccess, key2 = isUserLoggedIn) {
         if (currentLoginSuccess) {
             authViewModel.resetLoginState()
+        }
+
+        if (isUserLoggedIn) {
+            navController.navigate(AppRoutes.APP_GRAPH_ROOT) {
+                popUpTo(AppRoutes.LOGIN_SCREEN) { inclusive = true }
+                launchSingleTop = true
+            }
         }
     }
 
@@ -173,6 +182,7 @@ fun LoginScreen(
                     Text("Belum punya akun? Daftar di sini.",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.primary,
+                        textAlign = TextAlign.Center
                     )
                 }
             }

@@ -58,7 +58,8 @@ fun WelcomeScreen(navController: NavController) {
 
         Text(
             text = "Selamat Datang Di Kasku",
-            style = MaterialTheme.typography.titleLarge
+            style = MaterialTheme.typography.titleLarge,
+            textAlign = TextAlign.Center
         )
         Text(
             text = "Kelola keuangan, lebih mudah dan cerdas.",

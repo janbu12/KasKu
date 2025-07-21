@@ -22,6 +22,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -223,7 +224,7 @@ fun RegisterScreen(
                     navController.popBackStack()
                     authViewModel.resetRegisterState()
                 }) {
-                    Text("Sudah punya akun? Login di sini.")
+                    Text("Sudah punya akun? Login di sini.", textAlign = TextAlign.Center)
                 }
             }
         }
