@@ -17,6 +17,7 @@ class Receipt {
    * @param {string|null} tender_type
    * @param {number|null} amount_paid
    * @param {number|null} change_given
+   * @param {string|null} category_spending
    */
   constructor(
     id,
@@ -29,9 +30,10 @@ class Receipt {
     additional_charges = null,
     tax_amount = null,
     final_total,
-    tender_type = null,
+    tender_type,
     amount_paid = null,
-    change_given = null
+    change_given = null,
+    category_spending
   ) {
     this.id = id;
     this.merchant_name = merchant_name;
@@ -46,6 +48,7 @@ class Receipt {
     this.tender_type = tender_type;
     this.amount_paid = amount_paid;
     this.change_given = change_given;
+    this.category_spending = category_spending;
   }
 
   /**
@@ -65,7 +68,8 @@ class Receipt {
       final_total: this.final_total,
       tender_type: this.tender_type,
       amount_paid: this.amount_paid,
-      change_given: this.change_given
+      change_given: this.change_given,
+      category_spending: this.category_spending
     };
   }
 
@@ -88,7 +92,8 @@ class Receipt {
       data.final_total,
       data.tender_type,
       data.amount_paid,
-      data.change_given
+      data.change_given,
+      data.category_spending
     );
   }
 }

@@ -12,6 +12,14 @@ exports.addStruct = async (req, res) => {
     return res.status(400).json({ message: "receipt data required." });
   }
 
+  if (!receipt.merchant_name || !receipt.transaction_date || !receipt.transaction_time || !receipt.items || !receipt.final_total) {
+    return res.status(400).json({ message: "Merchant name, transaction date, transaction time, items, and final total are required." });
+  }
+
+  if (!receipt.tender_type || !receipt.category_spending) {
+    return res.status(400).json({ message: "Tender type or category spending are required." });
+  }
+
   try {
     const userRef = db.collection('users').doc(authenticatedUserUid);
     const userDoc = await userRef.get();
@@ -46,6 +54,15 @@ exports.editStruct = async (req, res) => {
   if (!id || !receipt) {
     return res.status(400).json({ message: "User ID (uid), receipt data, and struct id are required." });
   }
+
+  if (!receipt.merchant_name || !receipt.transaction_date || !receipt.transaction_time || !receipt.items || !receipt.final_total) {
+    return res.status(400).json({ message: "Merchant name, transaction date, transaction time, items, and final total are required." });
+  }
+
+  if (!receipt.tender_type || !receipt.category_spending) {
+    return res.status(400).json({ message: "Tender type or category spending are required." });
+  }
+  
   try {
     const userRef = db.collection('users').doc(authenticatedUserUid);
     const userDoc = await userRef.get();
