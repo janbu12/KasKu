@@ -11,6 +11,9 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 private val DarkColorScheme = darkColorScheme(
     primary = Green40,
@@ -60,4 +63,13 @@ fun KasKuTheme(
         typography = Typography,
         content = content
     )
+}
+
+class ThemeViewModel : ViewModel() {
+    private val _isDarkTheme = MutableStateFlow(false)
+    val isDarkTheme: StateFlow<Boolean> = _isDarkTheme
+
+    fun toggleTheme() {
+        _isDarkTheme.value = !_isDarkTheme.value
+    }
 }

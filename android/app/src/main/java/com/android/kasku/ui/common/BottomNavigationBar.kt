@@ -1,9 +1,11 @@
 package com.android.kasku.ui.common
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -11,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -88,16 +91,33 @@ fun BottomNavigationBar(
 
     @Composable
     fun AddStructFab(onFabClick: () -> Unit) {
-        FloatingActionButton(
-            onClick = onFabClick,
-            shape = CircleShape,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier.size(56.dp),
+        Column (
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Bottom,
         ) {
-            Icon(
-                imageVector = Icons.Default.AddAPhoto,
-                contentDescription = "Add Struct"
+            FloatingActionButton(
+                onClick = onFabClick,
+                shape = CircleShape,
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(56.dp),
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AddAPhoto,
+                    contentDescription = "Add Struct"
+                )
+            }
+
+            Spacer(
+                modifier = Modifier.size(8.dp)
+            )
+
+            Text(
+                modifier = Modifier,
+                text = "Add Struct",
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
@@ -142,7 +162,7 @@ fun BottomNavigationBar(
                 }
             },
             colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
-                selectedIconColor = MaterialTheme.colorScheme.primary,
+                selectedIconColor = MaterialTheme.colorScheme.tertiary,
                 selectedTextColor = MaterialTheme.colorScheme.primary,
                 indicatorColor = Color.White,
                 unselectedIconColor = MaterialTheme.colorScheme.secondary,
