@@ -3,8 +3,11 @@ package com.android.kasku.data.profile
 import android.content.Context
 import android.util.Log
 import com.android.kasku.BuildConfig
+import com.android.kasku.network.AuthInterceptor
+import com.android.kasku.network.TokenInterceptor
 import com.android.kasku.utils.DataStoreManager
 import com.google.firebase.auth.FirebaseAuth
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
@@ -41,10 +44,16 @@ interface ProfileRepository {
 
 class ProfileRepositoryImpl(
     private val firebaseAuth: FirebaseAuth,
-    private val httpClient: OkHttpClient,
+    private val onTokenExpired: () -> Unit
 ) : ProfileRepository {
 
     private val BASE_URL = BuildConfig.KASKU_BASE_URL
+
+    private val httpClient: OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor(onTokenExpired))
+        .build()
+
+    private val gson = Gson()
 
     override suspend fun getUserProfile(context: Context): ProfileResult<UserData> {
         return withContext(Dispatchers.IO) {
@@ -55,23 +64,9 @@ class ProfileRepositoryImpl(
             }
 
 
-            // Get the token for authentication
-
-            val token = try {
-                DataStoreManager.getToken(context)
-            } catch (e: Exception) {
-                return@withContext ProfileResult.Error("Failed to get saved token: ${e.message}")
-            }
-
-
-
-            if (token == null) {
-                return@withContext ProfileResult.Error("Auth token is null.")
-            }
 
             val request = Request.Builder()
                 .url("$BASE_URL/api/users/me")
-                .header("Authorization", "Bearer $token") // Send token in the header
                 .get()
                 .build()
 
@@ -113,11 +108,6 @@ class ProfileRepositoryImpl(
     ): ProfileResult<Unit> {
         return withContext(Dispatchers.IO) {
             try {
-                val token = try {
-                    DataStoreManager.getToken(context)
-                } catch (e: Exception) {
-                    return@withContext ProfileResult.Error("Failed to get saved token: ${e.message}")
-                }
 
                 val requestBody = JSONObject().apply {
                     put("occupation", occupation)
@@ -128,7 +118,6 @@ class ProfileRepositoryImpl(
                 val request = Request.Builder()
                     .url("$BASE_URL/api/users/me/profile")
                     .put(requestBody)
-                    .addHeader("Authorization", "Bearer $token")
                     .build()
 
                 val response = httpClient.newCall(request).execute()

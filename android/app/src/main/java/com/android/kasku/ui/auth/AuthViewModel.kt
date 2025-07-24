@@ -15,6 +15,7 @@ import com.android.kasku.utils.DataStoreManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 
 // Menggunakan konstruktor standar. Untuk Hilt, Anda akan menggunakan @HiltViewModel dan @Inject
 // @HiltViewModel
@@ -26,7 +27,7 @@ import kotlinx.coroutines.launch
 class AuthViewModel : ViewModel() {
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
     private val firestore: FirebaseFirestore = FirebaseFirestore.getInstance()
-    private val authRepository: AuthRepositoryImpl = AuthRepositoryImpl(FirebaseAuth.getInstance(), FirebaseFirestore.getInstance())
+    private val authRepository: AuthRepositoryImpl = AuthRepositoryImpl(FirebaseAuth.getInstance(), FirebaseFirestore.getInstance(), onTokenExpired = {logout()})
     private val loginUseCase: LoginUseCase = LoginUseCase(authRepository)
     private val registerUseCase: RegisterUseCase = RegisterUseCase(authRepository)
 
@@ -86,20 +87,6 @@ class AuthViewModel : ViewModel() {
                 is AuthResult.Success -> {
                     loginSuccess = true
                     isUserLoggedIn = true
-                    val currentUser = firebaseAuth.currentUser
-                    currentUser?.getIdToken(true)?.addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            val idToken = task.result?.token
-                            Log.d("AuthVM", "Login Success! Firebase ID Token: ${idToken?.substring(0, 20)}...") // Log sebagian token
-                            viewModelScope.launch {
-                                idToken?.let {
-                                    DataStoreManager.saveToken(context, it)
-                                }
-                            }
-                        } else {
-                            Log.e("AuthVM", "Failed to get ID token after login: ${task.exception?.message}")
-                        }
-                    }
                 }
                 is AuthResult.Error -> {
                     errorMessage = result.message
@@ -180,6 +167,30 @@ class AuthViewModel : ViewModel() {
         viewModelScope.launch {
             val currentUser = firebaseAuth.currentUser
             isUserLoggedIn = (currentUser != null)
+            if (currentUser != null) {
+                Log.d("AuthVM", "User is logged in (client-side). UID: ${currentUser.uid}")
+                // Coba ambil token untuk memastikan sesi aktif
+                try {
+                    val tokenCheckResult = currentUser.getIdToken(true).await()
+                    if (tokenCheckResult?.token != null) {
+                        Log.d("AuthVM", "checkUserLoggedIn: Token fetched successfully.")
+                    } else {
+                        Log.e("AuthVM", "checkUserLoggedIn: Token is NULL even after successful check! Error: ${tokenCheckResult}")
+                        // Token null, mungkin sesi invalid, paksa logout lokal
+                        firebaseAuth.signOut()
+                        isUserLoggedIn = false
+                        errorMessage = "Sesi Anda tidak valid. Silakan login kembali."
+                    }
+                } catch (e: Exception) {
+                    Log.e("AuthVM", "checkUserLoggedIn: Error fetching token during check", e)
+                    // Terjadi error saat mengambil token, anggap sesi tidak valid
+                    firebaseAuth.signOut()
+                    isUserLoggedIn = false
+                    errorMessage = "Terjadi masalah autentikasi. Silakan login kembali."
+                }
+            } else {
+                Log.d("AuthVM", "No user logged in (client-side).")
+            }
             authCheckCompleted = true
         }
     }

@@ -93,5 +93,6 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.material)
     implementation(libs.androidx.datastore.preferences.v100)
+    implementation(libs.kotlinx.coroutines.play.services)
 
 }

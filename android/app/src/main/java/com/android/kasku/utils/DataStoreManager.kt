@@ -11,9 +11,9 @@ private val Context.dataStore by preferencesDataStore(name = "auth_prefs")
 object DataStoreManager {
     private val TOKEN_KEY = stringPreferencesKey("id_token")
 
-    suspend fun saveToken(context: Context, token: String) {
+    suspend fun saveToken(context: Context, token: String?) {
         context.dataStore.edit { prefs ->
-            prefs[TOKEN_KEY] = token
+            prefs[TOKEN_KEY] = token as String
         }
     }
 

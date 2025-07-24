@@ -18,7 +18,7 @@ import com.android.kasku.ui.dashboard.DashboardScreen
 import com.android.kasku.ui.me.ProfileScreen
 import com.android.kasku.ui.profile.ProfileViewModel
 import com.android.kasku.ui.setting.SettingScreen
-import com.android.kasku.ui.structs.StructsScreen
+import com.android.kasku.ui.structs.StructScreen
 import com.android.kasku.ui.theme.ThemeViewModel
 
 @Composable
@@ -53,7 +53,11 @@ fun MainScreen(
                 DashboardScreen()
             }
             composable(BottomNavItem.Structs.route) {
-                StructsScreen()
+                StructScreen(
+                    navToEdit = { structId ->
+                        navController.navigate("${AppRoutes.EDIT_STRUCT_SCREEN}/$structId")
+                    }
+                )
             }
             composable(BottomNavItem.Profile.route) {
                 ProfileScreen(profileViewModel)

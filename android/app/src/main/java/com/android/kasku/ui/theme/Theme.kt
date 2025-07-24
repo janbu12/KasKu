@@ -9,16 +9,20 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Green40,
+    primary = Green400,
     secondary = Orange40,
-    tertiary = Charcoal80
+    tertiary = Charcoal80,
+    background = Color.Black,
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -27,7 +31,8 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Green600,
     background = Color.White,
     outline = Green300,
-    onSurface = Green500
+    surfaceVariant = Color.White,
+    onSurface = Green500,
 
 
     /* Other default colors to override

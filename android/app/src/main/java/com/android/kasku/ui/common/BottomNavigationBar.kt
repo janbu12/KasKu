@@ -57,14 +57,15 @@ fun BottomNavigationBar(
 
     Surface(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.background),
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
         tonalElevation = 2.dp,
         shadowElevation = 8.dp,
         color = MaterialTheme.colorScheme.background
     ) {
         BottomAppBar(
-            containerColor = Color.White,
+            containerColor = MaterialTheme.colorScheme.background,
             contentPadding = PaddingValues(horizontal = 12.dp),
             actions = {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()

@@ -12,22 +12,17 @@ import okhttp3.OkHttpClient
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import com.android.kasku.BuildConfig
-
-// import com.google.firebase.auth.FirebaseUser
-// import com.google.firebase.firestore.FirebaseFirestore // Untuk menyimpan username saat register
-
-// Jika Anda menggunakan Dependency Injection (DI) seperti Hilt, Anda akan menggunakan @Inject constructor
-// class AuthRepositoryImpl @Inject constructor(
-//     private val firebaseAuth: FirebaseAuth,
-//     private val firestore: FirebaseFirestore
-// ) : AuthRepository {
+import com.android.kasku.network.TokenInterceptor
 
 class AuthRepositoryImpl(
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    private val onTokenExpired: () -> Unit
 ) : AuthRepository {
 
-    private val httpClient: OkHttpClient = OkHttpClient()
+    private val httpClient: OkHttpClient = OkHttpClient.Builder()
+        .addInterceptor(TokenInterceptor(onTokenExpired))
+        .build()
 
     private val BASE_URL = BuildConfig.KASKU_BASE_URL
     private val PROD_BASE_URL = BuildConfig.PROD_BASE_URL
@@ -75,18 +70,6 @@ class AuthRepositoryImpl(
                 val responseBody = response.body?.string()
 
                 if (response.isSuccessful) {
-                    // Jika backend register sukses, kita asumsikan user sudah terbuat di Firebase Auth juga
-                    // Anda bisa mengambil UID dari response body jika backend mengembalikannya,
-                    // atau cukup login user setelah register sukses.
-                    // Untuk kesederhanaan, kita bisa membuat FirebaseUser dummy atau mengambil user dari Auth
-                    // setelah register sukses.
-                    // Namun, karena backend yang membuat user di Firebase Auth, kita bisa langsung ambil user
-                    // dari firebaseAuth.currentUser atau mencoba login ulang jika perlu.
-                    // Untuk saat ini, kita akan menganggap sukses jika API backend merespons 2xx.
-                    // Anda mungkin perlu mengambil UID dari respons backend jika ingin menggunakannya di client.
-
-                    // Contoh pengambilan user dari Firebase Auth setelah register sukses
-                    // Ini akan berhasil jika backend Anda berhasil membuat user di Firebase Auth
                     val firebaseUser = firebaseAuth.currentUser // Coba ambil user yang sedang login (jika ada)
                         ?: firebaseAuth.signInWithEmailAndPassword(email, password).await().user // Atau login ulang
 

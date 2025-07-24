@@ -1,11 +1,14 @@
 package com.android.kasku.ui.profile
 
 import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.android.kasku.data.profile.ProfileRepositoryImpl
 import com.android.kasku.data.profile.ProfileResult
 import com.android.kasku.data.profile.UserData
+import com.android.kasku.ui.auth.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,8 +21,8 @@ class ProfileViewModel : ViewModel() {
 
     // Buat dependencies di dalam ViewModel, sama seperti AuthViewModel
     private val firebaseAuth: FirebaseAuth = FirebaseAuth.getInstance()
-    private val httpClient: OkHttpClient = OkHttpClient()
-    private val profileRepository: ProfileRepositoryImpl = ProfileRepositoryImpl(firebaseAuth, httpClient)
+    private val authViewModel: AuthViewModel = AuthViewModel()
+    private val profileRepository: ProfileRepositoryImpl = ProfileRepositoryImpl(firebaseAuth, onTokenExpired = { authViewModel.logout()})
 
     private val _uiState = MutableStateFlow<ProfileUiState>(ProfileUiState.Loading)
     val uiState: StateFlow<ProfileUiState> = _uiState.asStateFlow()
