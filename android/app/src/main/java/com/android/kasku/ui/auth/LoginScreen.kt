@@ -30,6 +30,7 @@ import com.android.kasku.navigation.AppRoutes // Pastikan ini diimpor
 import com.android.kasku.ui.common.CustomButton
 import com.android.kasku.ui.theme.KasKuTheme // Sesuaikan tema Anda
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import com.android.kasku.R
 
@@ -45,6 +46,7 @@ fun LoginScreen(
     val currentErrorMessage = authViewModel.errorMessage
     val currentLoginSuccess = authViewModel.loginSuccess
     val isUserLoggedIn by rememberUpdatedState(authViewModel.isUserLoggedIn)
+    val context = LocalContext.current
 
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -80,6 +82,9 @@ fun LoginScreen(
                 Image(
                     painter = painterResource(id = R.drawable.login_picture),
                     contentDescription = "Login Illustration",
+                    modifier = Modifier.defaultMinSize(
+
+                    )
                 )
             }
 
@@ -163,7 +168,9 @@ fun LoginScreen(
 
                 CustomButton(
                     text = "Login",
-                    onClick = { authViewModel.login() },
+                    onClick = { authViewModel.login(
+                        context = context
+                    ) },
                     enabled = !currentIsLoading,
                     isLoading = currentIsLoading,
                     modifier = Modifier.fillMaxWidth().height(46.dp).align(Alignment.CenterHorizontally)

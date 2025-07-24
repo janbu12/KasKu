@@ -1,6 +1,5 @@
 package com.android.kasku.navigation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,14 +20,18 @@ import com.android.kasku.ui.auth.LoginScreen
 import com.android.kasku.ui.auth.AuthViewModel
 import com.android.kasku.MainScreen
 import com.android.kasku.ui.auth.RegisterScreen
+import com.android.kasku.ui.profile.ProfileViewModel
 import com.android.kasku.ui.splash.WelcomeScreen
 import com.android.kasku.ui.structs.AddStructScreen
+import com.android.kasku.ui.theme.ThemeViewModel
 
 @Composable
-fun AppNavHost() {
+fun AppNavHost(themeViewModel: ThemeViewModel) {
     val navController = rememberNavController()
     // Inisialisasi ViewModel di sini, atau gunakan Hilt jika sudah di setup
     val authViewModel: AuthViewModel = viewModel()
+
+    val profileViewModel: ProfileViewModel = viewModel ()
 
     val isUserLoggedIn by rememberUpdatedState(authViewModel.isUserLoggedIn)
     val authCheckCompleted by rememberUpdatedState(authViewModel.authCheckCompleted)
@@ -99,16 +102,28 @@ fun AppNavHost() {
             route = AppRoutes.APP_GRAPH_ROOT
         ) {
             composable(BottomNavItem.Dashboard.route) {
-                MainScreen(navController = navController, authViewModel = authViewModel)
+                MainScreen(navController = navController, authViewModel = authViewModel, themeViewModel)
             }
             composable(BottomNavItem.Structs.route) {
-                MainScreen(navController = navController, authViewModel = authViewModel)
+                MainScreen(
+                    navController = navController,
+                    authViewModel = authViewModel,
+                    themeViewModel = themeViewModel
+                )
             }
             composable(BottomNavItem.Profile.route) {
-                MainScreen(navController = navController, authViewModel = authViewModel)
+                MainScreen(
+                    navController = navController,
+                    authViewModel = authViewModel,
+                    themeViewModel = themeViewModel
+                )
             }
             composable(BottomNavItem.Setting.route) {
-                MainScreen(navController = navController, authViewModel = authViewModel)
+                MainScreen(
+                    navController = navController,
+                    authViewModel = authViewModel,
+                    themeViewModel = themeViewModel
+                )
             }
         }
     }

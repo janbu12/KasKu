@@ -1,5 +1,7 @@
 package com.android.kasku.ui.auth
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,6 +11,7 @@ import com.android.kasku.data.auth.AuthRepositoryImpl
 import com.android.kasku.data.auth.AuthResult
 import com.android.kasku.domain.auth.LoginUseCase
 import com.android.kasku.domain.auth.RegisterUseCase
+import com.android.kasku.utils.DataStoreManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.launch
@@ -68,7 +71,7 @@ class AuthViewModel : ViewModel() {
         errorMessage = null // Hapus pesan error saat input berubah
     }
 
-    fun login() {
+    fun login(context: Context) {
         if (email.isBlank() || password.isBlank()) {
             errorMessage = "Email and password cannot be empty."
             return
@@ -83,6 +86,20 @@ class AuthViewModel : ViewModel() {
                 is AuthResult.Success -> {
                     loginSuccess = true
                     isUserLoggedIn = true
+                    val currentUser = firebaseAuth.currentUser
+                    currentUser?.getIdToken(true)?.addOnCompleteListener { task ->
+                        if (task.isSuccessful) {
+                            val idToken = task.result?.token
+                            Log.d("AuthVM", "Login Success! Firebase ID Token: ${idToken?.substring(0, 20)}...") // Log sebagian token
+                            viewModelScope.launch {
+                                idToken?.let {
+                                    DataStoreManager.saveToken(context, it)
+                                }
+                            }
+                        } else {
+                            Log.e("AuthVM", "Failed to get ID token after login: ${task.exception?.message}")
+                        }
+                    }
                 }
                 is AuthResult.Error -> {
                     errorMessage = result.message

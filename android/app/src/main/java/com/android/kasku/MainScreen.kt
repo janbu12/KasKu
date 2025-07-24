@@ -1,13 +1,9 @@
 package com.android.kasku
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddAPhoto
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
@@ -19,15 +15,20 @@ import com.android.kasku.ui.auth.AuthViewModel
 import com.android.kasku.ui.common.AddStructFab
 import com.android.kasku.ui.common.BottomNavigationBar
 import com.android.kasku.ui.dashboard.DashboardScreen
-import com.android.kasku.ui.me.MeScreen
+import com.android.kasku.ui.me.ProfileScreen
+import com.android.kasku.ui.profile.ProfileViewModel
 import com.android.kasku.ui.setting.SettingScreen
 import com.android.kasku.ui.structs.StructsScreen
-import com.android.kasku.ui.theme.Green40
-import com.android.kasku.ui.theme.KasKuTheme
+import com.android.kasku.ui.theme.ThemeViewModel
 
 @Composable
-fun MainScreen(navController: NavController, authViewModel: AuthViewModel = viewModel()) {
+fun MainScreen(
+    navController: NavController,
+    authViewModel: AuthViewModel = viewModel(),
+    themeViewModel: ThemeViewModel
+) {
     val bottomNavController = rememberNavController()
+    val profileViewModel: ProfileViewModel = viewModel()
 
     Scaffold(
         bottomBar = {
@@ -55,10 +56,10 @@ fun MainScreen(navController: NavController, authViewModel: AuthViewModel = view
                 StructsScreen()
             }
             composable(BottomNavItem.Profile.route) {
-                MeScreen()
+                ProfileScreen(profileViewModel)
             }
             composable(BottomNavItem.Setting.route) {
-                SettingScreen(authViewModel)
+                SettingScreen(authViewModel, themeViewModel)
             }
         }
     }
