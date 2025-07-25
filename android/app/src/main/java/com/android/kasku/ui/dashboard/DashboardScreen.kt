@@ -11,13 +11,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.android.kasku.ui.theme.KasKuTheme
+import androidx.compose.material3.MaterialTheme // Import MaterialTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen() {
+    // Hapus Scaffold di sini
     Surface (
         modifier = Modifier.fillMaxSize(),
-        color = androidx.compose.material3.MaterialTheme.colorScheme.background
+        color = MaterialTheme.colorScheme.background // Gunakan MaterialTheme.colorScheme.background
     ) {
         Box(
             modifier = Modifier.fillMaxSize(),

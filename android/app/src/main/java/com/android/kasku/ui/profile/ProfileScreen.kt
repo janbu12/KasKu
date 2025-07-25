@@ -1,8 +1,10 @@
 package com.android.kasku.ui.me
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -96,15 +98,20 @@ private fun ProfileContent(paddingValues: PaddingValues, userData: UserData, pro
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Profile Picture
-        Image(
-            painter = painterResource(id = R.drawable.user_icon),
-            contentDescription = "Profile Picture",
-            contentScale = ContentScale.Crop,
+        Box (
             modifier = Modifier
-                .size(120.dp)
                 .clip(CircleShape)
-                .background(Color.LightGray)
-        )
+                .size(120.dp)
+                .border(border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary), shape = CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                painter = painterResource(id = R.drawable.user_icon), // Gunakan user_icon yang sudah ada
+                contentDescription = "Profile Picture",
+                modifier = Modifier
+                    .size(80.dp)
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -248,10 +255,6 @@ fun ProfileScreenPreview() {
                 financialGoals = "Buy a computer",
                 currency = "IDR"
             )
-        )
-        ProfileContent(
-            paddingValues = PaddingValues(0.dp), userData = previewUserData,
-            profileViewModel = TODO()
         )
     }
 }

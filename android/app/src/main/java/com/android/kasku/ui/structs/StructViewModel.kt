@@ -1,13 +1,13 @@
+// ui/structs/StructViewModel.kt
 package com.android.kasku.ui.structs
 
 import android.content.Context
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.android.kasku.data.struct.StructItem
 import com.android.kasku.data.struct.StructRepository
 import com.android.kasku.data.struct.StructResult
-import kotlinx.coroutines.flow.Flow
+import com.android.kasku.data.struct.Item
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,8 +35,6 @@ class StructViewModel(
 
     private val _uiState = MutableStateFlow<StructUiState>(StructUiState.Loading)
     val uiState: StateFlow<StructUiState> = _uiState.asStateFlow()
-
-
 
     fun loadStructs(context: Context) {
         _uiState.value = StructUiState.Loading
@@ -73,7 +71,16 @@ class StructViewModel(
         categorySpending: String?,
         merchantName: String?,
         transactionDate: String,
-        finalTotal: Double
+        transactionTime: String,
+        items: List<Item>,
+        subtotal: Double,
+        discountAmount: Double?,
+        additionalCharges: Double?,
+        taxAmount: Double?,
+        finalTotal: Double,
+        tenderType: String?,
+        amountPaid: Double?,
+        changeGiven: Double?
     ) {
         _loading.value = true
         viewModelScope.launch {
@@ -83,7 +90,16 @@ class StructViewModel(
                 categorySpending = categorySpending,
                 merchantName = merchantName,
                 transactionDate = transactionDate,
-                finalTotal = finalTotal
+                transactionTime = transactionTime,
+                items = items,
+                subtotal = subtotal,
+                discountAmount = discountAmount,
+                additionalCharges = additionalCharges,
+                taxAmount = taxAmount,
+                finalTotal = finalTotal,
+                tenderType = tenderType,
+                amountPaid = amountPaid,
+                changeGiven = changeGiven
             )
             if (result is StructResult.Success) {
                 _updateSuccess.value = true

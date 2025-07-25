@@ -10,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -24,7 +25,9 @@ fun SettingScreen(
     themeViewModel: ThemeViewModel
 ) {
     val isDarkTheme by themeViewModel.isDarkTheme.collectAsState()
+    val context = LocalContext.current // Mendapatkan context
 
+    // Hapus Scaffold dari sini
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
@@ -32,7 +35,7 @@ fun SettingScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(24.dp),
+                .padding(24.dp), // Padding akan diterapkan oleh NavHost di MainScreen
             verticalArrangement = Arrangement.spacedBy(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -77,7 +80,7 @@ fun SettingScreen(
             }
 
             CustomButton(
-                onClick = { authViewModel.logout() },
+                onClick = { authViewModel.logout() }, // Pass context to logout
                 modifier = Modifier.fillMaxWidth(),
                 text = "Logout",
             )

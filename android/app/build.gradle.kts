@@ -90,6 +90,7 @@ dependencies {
     implementation(libs.logging.interceptor)
     implementation(libs.gson)
     implementation(libs.androidx.material.icons.extended)
+    implementation(libs.material.icons.extended)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.material)
     implementation(libs.androidx.datastore.preferences.v100)

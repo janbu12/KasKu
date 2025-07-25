@@ -23,6 +23,7 @@ private val DarkColorScheme = darkColorScheme(
     secondary = Orange40,
     tertiary = Charcoal80,
     background = Color.Black,
+    error = Color(0xFFE54044)
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -33,6 +34,7 @@ private val LightColorScheme = lightColorScheme(
     outline = Green300,
     surfaceVariant = Color.White,
     onSurface = Green500,
+    error = Color(0xFFF44336)
 
 
     /* Other default colors to override
