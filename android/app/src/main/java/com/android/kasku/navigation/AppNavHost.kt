@@ -23,6 +23,7 @@ import com.android.kasku.ui.auth.RegisterScreen
 import com.android.kasku.ui.profile.ProfileViewModel
 import com.android.kasku.ui.splash.WelcomeScreen
 import com.android.kasku.ui.structs.AddStructScreen
+import com.android.kasku.ui.structs.EditStructScreen
 import com.android.kasku.ui.theme.ThemeViewModel
 
 @Composable
@@ -124,6 +125,10 @@ fun AppNavHost(themeViewModel: ThemeViewModel) {
                     authViewModel = authViewModel,
                     themeViewModel = themeViewModel
                 )
+            }
+            composable("${AppRoutes.EDIT_STRUCT_SCREEN}/{structId}") { backStackEntry ->
+                val id = backStackEntry.arguments?.getString("structId") ?: return@composable
+                EditStructScreen(structId = id, navController = navController)
             }
         }
     }
