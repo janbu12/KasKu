@@ -95,5 +95,13 @@ dependencies {
     implementation(libs.androidx.material)
     implementation(libs.androidx.datastore.preferences.v100)
     implementation(libs.kotlinx.coroutines.play.services)
+    // CameraX core library using the camera2 implementation
+    implementation(libs.androidx.camera.camera2)
+    // CameraX Lifecycle library
+    implementation(libs.androidx.camera.lifecycle)
+    // CameraX View class
+    implementation(libs.androidx.camera.view)
+    // Coil (untuk menampilkan gambar dari URI/File)
+    implementation(libs.coil.compose)
 
 }

@@ -47,7 +47,7 @@ class ProfileRepositoryImpl(
     private val onTokenExpired: () -> Unit
 ) : ProfileRepository {
 
-    private val BASE_URL = BuildConfig.KASKU_BASE_URL
+    private val BASE_URL = BuildConfig.PROD_BASE_URL
 
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor(onTokenExpired))
@@ -63,8 +63,6 @@ class ProfileRepositoryImpl(
                 return@withContext ProfileResult.Error("No authenticated user found.")
             }
 
-
-
             val request = Request.Builder()
                 .url("$BASE_URL/api/users/me")
                 .get()
@@ -76,18 +74,31 @@ class ProfileRepositoryImpl(
 
                 if (response.isSuccessful && responseBody != null) {
                     val json = JSONObject(responseBody)
-                    val userProfileJson = json.getJSONObject("userProfile")
+                    // Pengecekan null atau ketiadaan 'userProfile'
+                    val userProfileJson = json.optJSONObject("userProfile")
+
+                    val userProfile = if (userProfileJson != null) {
+                        UserProfile(
+                            occupation = userProfileJson.optString("occupation", ""), // Gunakan optString dengan default
+                            income = userProfileJson.optLong("income", 0L), // Gunakan optLong dengan default
+                            financialGoals = userProfileJson.optString("financialGoals", ""), // Gunakan optString dengan default
+                            currency = userProfileJson.optString("currency", "IDR") // Default currency
+                        )
+                    } else {
+                        // Nilai default jika userProfile tidak ada atau null
+                        UserProfile(
+                            occupation = "Belum Terisi",
+                            income = 0L,
+                            financialGoals = "Belum Terisi",
+                            currency = "IDR"
+                        )
+                    }
 
                     val userData = UserData(
                         uid = json.getString("uid"),
                         username = json.getString("username"),
                         email = json.getString("email"),
-                        userProfile = UserProfile(
-                            occupation = userProfileJson.getString("occupation"),
-                            income = userProfileJson.getLong("income"),
-                            financialGoals = userProfileJson.getString("financialGoals"),
-                            currency = userProfileJson.getString("currency")
-                        )
+                        userProfile = userProfile // Gunakan objek userProfile yang sudah aman
                     )
                     ProfileResult.Success(userData)
                 } else {
@@ -95,6 +106,7 @@ class ProfileRepositoryImpl(
                     ProfileResult.Error(errorMessage)
                 }
             } catch (e: Exception) {
+                Log.e("ProfileRepo", "Network error or JSON parsing issue: ${e.message}", e)
                 ProfileResult.Error("Network error: ${e.localizedMessage}")
             }
         }

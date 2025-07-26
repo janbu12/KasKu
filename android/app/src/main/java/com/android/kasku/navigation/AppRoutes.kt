@@ -11,5 +11,5 @@ object AppRoutes {
     const val ADD_STRUCT_SCREEN = "add_struct"
     const val EDIT_STRUCT_SCREEN = "edit_struct"
 
-
+    fun appGraphRouteWithTab(tabRoute: String) = "app_graph_root?startTab=$tabRoute"
 }

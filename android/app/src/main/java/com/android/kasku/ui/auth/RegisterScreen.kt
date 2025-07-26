@@ -77,6 +77,10 @@ fun RegisterScreen(
                 Image(
                     painter = painterResource(id = R.drawable.register_picture),
                     contentDescription = "Login Illustration",
+                    modifier = Modifier.defaultMinSize(
+                        300.dp,
+                        200.dp
+                    )
                 )
             }
 

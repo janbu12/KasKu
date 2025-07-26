@@ -95,7 +95,7 @@ fun AppNavHost(themeViewModel: ThemeViewModel) {
             WelcomeScreen(navController = navController)
         }
         composable(AppRoutes.ADD_STRUCT_SCREEN) {
-            AddStructScreen()
+            AddStructScreen(navController = navController)
         }
 
         navigation(

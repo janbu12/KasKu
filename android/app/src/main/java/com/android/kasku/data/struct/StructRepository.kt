@@ -1,17 +1,25 @@
 package com.android.kasku.data.struct
 
 import android.content.Context
+import android.net.Uri
+import android.util.Log
+import android.webkit.MimeTypeMap
 import com.android.kasku.BuildConfig
 import com.android.kasku.network.TokenInterceptor
 import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONArray
 import org.json.JSONObject
+import java.io.File
+import java.io.FileOutputStream
+import java.util.concurrent.TimeUnit
 
 data class StructItem(
     val id: String,
@@ -55,13 +63,31 @@ interface StructRepository {
         amountPaid: Double?, // Add amount_paid to updateStruct
         changeGiven: Double? // Add change_given to updateStruct
     ): StructResult<Unit>
+    suspend fun uploadStructImage(context: Context, imageUri: Uri): StructResult<UploadStructResponse>
+    suspend fun createStruct(
+        context: Context,
+        categorySpending: String?,
+        merchantName: String,
+        transactionDate: String,
+        transactionTime: String,
+        items: List<Item>,
+        subtotal: Double,
+        discountAmount: Double?,
+        additionalCharges: Double?,
+        taxAmount: Double?,
+        finalTotal: Double,
+        tenderType: String?,
+        amountPaid: Double?,
+        changeGiven: Double?
+    ): StructResult<Unit>
+    suspend fun deleteStruct(context: Context, id: String): StructResult<Unit>
 }
 
 class StructRepositoryImpl(
     private val onTokenExpired: () -> Unit
 ) : StructRepository {
 
-    private val BASE_URL = BuildConfig.KASKU_BASE_URL
+    private val BASE_URL = BuildConfig.PROD_BASE_URL
     private val httpClient: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(TokenInterceptor(onTokenExpired))
         .build()
@@ -236,6 +262,144 @@ class StructRepositoryImpl(
                 } else {
                     val errorBody = response.body?.string()
                     StructResult.Error("Failed to update struct: ${response.code} - ${errorBody}")
+                }
+            } catch (e: Exception) {
+                StructResult.Error("Network error: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    override suspend fun uploadStructImage(context: Context, imageUri: Uri): StructResult<UploadStructResponse> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val contentResolver = context.contentResolver
+                val mimeType = contentResolver.getType(imageUri)
+                val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+                val fileExtension = if (extension != null) ".$extension" else ".jpg" // Fallback to .jpg
+
+                Log.d("UploadDebug", "Detected MIME Type: $mimeType") // Tambahkan log ini
+                Log.d("UploadDebug", "Inferred File Extension: $fileExtension") // Tambahkan log ini
+
+                // Create a temporary file to copy the image content
+                val tempFile = File(context.cacheDir, "upload_image_${System.currentTimeMillis()}${fileExtension}")
+                context.contentResolver.openInputStream(imageUri)?.use { input ->
+                    FileOutputStream(tempFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+
+                Log.d("UploadDebug", "Temp file exists: ${tempFile.exists()}, size: ${tempFile.length()} bytes")
+
+
+                val mediaType = mimeType?.toMediaTypeOrNull() ?: "image/jpeg".toMediaTypeOrNull() // Default to image/jpeg if type is null
+
+                Log.d("UploadDebug", "Using MediaType for upload: ${mediaType}")
+
+                val requestBody = MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart(
+                        "struk_image", // This is the key expected by the backend
+                        tempFile.name,
+                        tempFile.asRequestBody(mediaType)
+                    )
+                    .build()
+
+                val request = Request.Builder()
+                    .url("$BASE_URL/api/structs/upload") // Your upload endpoint
+                    .post(requestBody)
+                    .build()
+
+                val response = httpClient.newCall(request).execute()
+                val responseBody = response.body?.string()
+
+                // Delete the temporary file
+                tempFile.delete()
+
+                if (response.isSuccessful && responseBody != null) {
+                    val uploadResponse = gson.fromJson(responseBody, UploadStructResponse::class.java)
+                    StructResult.Success(uploadResponse)
+                } else {
+                    val errorMessage = responseBody ?: "Failed to upload image: ${response.code}"
+                    StructResult.Error(errorMessage)
+                }
+            } catch (e: Exception) {
+                StructResult.Error("Network error or file processing issue: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    override suspend fun createStruct(
+        context: Context,
+        categorySpending: String?,
+        merchantName: String,
+        transactionDate: String,
+        transactionTime: String,
+        items: List<Item>,
+        subtotal: Double,
+        discountAmount: Double?,
+        additionalCharges: Double?,
+        taxAmount: Double?,
+        finalTotal: Double,
+        tenderType: String?,
+        amountPaid: Double?,
+        changeGiven: Double?
+    ): StructResult<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val receiptData = ReceiptUpdateData( // Reusing ReceiptUpdateData for POST body
+                    merchantName = merchantName,
+                    transactionDate = transactionDate,
+                    transactionTime = transactionTime,
+                    items = items,
+                    subtotal = subtotal,
+                    discountAmount = discountAmount,
+                    additionalCharges = additionalCharges,
+                    taxAmount = taxAmount,
+                    finalTotal = finalTotal,
+                    tenderType = tenderType,
+                    amountPaid = amountPaid,
+                    changeGiven = changeGiven,
+                    categorySpending = categorySpending
+                )
+                // The backend expects a top-level "receipt" key for POST
+                val requestBody = mapOf("receipt" to receiptData)
+
+                val body = gson.toJson(requestBody).toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
+
+                val request = Request.Builder()
+                    .url("$BASE_URL/api/structs") // POST to /api/structs
+                    .post(body)
+                    .build()
+
+                val response = httpClient.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    StructResult.Success(Unit)
+                } else {
+                    val errorBody = response.body?.string()
+                    StructResult.Error("Failed to create struct: ${response.code} - ${errorBody}")
+                }
+            } catch (e: Exception) {
+                StructResult.Error("Network error: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    override suspend fun deleteStruct(context: Context, id: String): StructResult<Unit> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val request = Request.Builder()
+                    .url("$BASE_URL/api/structs/$id")
+                    .delete() // Use DELETE method
+                    .build()
+
+                val response = httpClient.newCall(request).execute()
+
+                if (response.isSuccessful) {
+                    StructResult.Success(Unit)
+                } else {
+                    val errorBody = response.body?.string()
+                    StructResult.Error("Failed to delete struct: ${response.code} - ${errorBody}")
                 }
             } catch (e: Exception) {
                 StructResult.Error("Network error: ${e.localizedMessage}")

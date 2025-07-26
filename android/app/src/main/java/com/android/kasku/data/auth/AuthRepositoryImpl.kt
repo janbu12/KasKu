@@ -24,7 +24,7 @@ class AuthRepositoryImpl(
         .addInterceptor(TokenInterceptor(onTokenExpired))
         .build()
 
-    private val BASE_URL = BuildConfig.KASKU_BASE_URL
+    private val BASE_URL = BuildConfig.PROD_BASE_URL
     private val PROD_BASE_URL = BuildConfig.PROD_BASE_URL
 
     override suspend fun loginUser(email: String, password: String): AuthResult<com.google.firebase.auth.FirebaseUser> {
