@@ -83,7 +83,8 @@ fun LoginScreen(
                     painter = painterResource(id = R.drawable.login_picture),
                     contentDescription = "Login Illustration",
                     modifier = Modifier.defaultMinSize(
-
+                        300.dp,
+                        200.dp
                     )
                 )
             }

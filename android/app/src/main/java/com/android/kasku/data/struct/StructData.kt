@@ -60,3 +60,33 @@ data class ReceiptUpdateData(
     @SerializedName("change_given") val changeGiven: Double? = null,
     @SerializedName("category_spending") val categorySpending: String? = null // Add this for PUT requests
 )
+
+// New data classes for image upload response
+data class ItemUpload(
+    @SerializedName("item_name") val itemName: String,
+    @SerializedName("quantity") val quantity: Int? = null, // Can be null
+    @SerializedName("unit_price") val unitPrice: Double? = null, // Can be null
+    @SerializedName("total_price_item") val totalPriceItem: Double? = null // Can be null
+)
+
+data class StructuredData(
+    @SerializedName("merchant_name") val merchantName: String,
+    @SerializedName("transaction_date") val transactionDate: String,
+    @SerializedName("transaction_time") val transactionTime: String,
+    @SerializedName("items") val items: List<ItemUpload>,
+    @SerializedName("subtotal") val subtotal: Double,
+    @SerializedName("discount_amount") val discountAmount: Double? = null,
+    @SerializedName("additional_charges") val additionalCharges: Double? = null,
+    @SerializedName("tax_amount") val taxAmount: Double? = null,
+    @SerializedName("final_total") val finalTotal: Double,
+    @SerializedName("tender_type") val tenderType: String? = null,
+    @SerializedName("amount_paid") val amountPaid: Double? = null,
+    @SerializedName("change_given") val changeGiven: Double? = null
+)
+
+data class UploadStructResponse(
+    @SerializedName("message") val message: String,
+    @SerializedName("fileName") val fileName: String,
+    @SerializedName("structuredData") val structuredData: StructuredData,
+    @SerializedName("rawGeminiText") val rawGeminiText: String? = null // Optional, if you want to keep the raw text
+)

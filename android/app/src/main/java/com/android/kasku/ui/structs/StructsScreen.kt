@@ -1,5 +1,6 @@
 package com.android.kasku.ui.structs
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Checkroom
 import androidx.compose.material.icons.filled.Commute
+import androidx.compose.material.icons.filled.Delete // Import Delete icon
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.Edit // Pencil icon
 import androidx.compose.material.icons.filled.Fastfood
@@ -36,19 +38,38 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import com.android.kasku.data.struct.StructItem
 import com.android.kasku.data.struct.StructRepositoryImpl
-import com.android.kasku.data.struct.Item // Ensure Item is imported if StructItem uses it
+import com.android.kasku.data.struct.Item
 
 @Composable
 fun StructScreen(
     navToEdit: (String) -> Unit,
 ) {
     val context = LocalContext.current
-    val viewModel = remember { StructViewModel(StructRepositoryImpl {}, context) }
+    val viewModel = remember { StructViewModel(StructRepositoryImpl { /* onTokenExpired, perlu context */ }, context) }
     val uiState by viewModel.uiState.collectAsState()
+    val deleteSuccess by viewModel.deleteSuccess.collectAsState() // NEW
+    val deleteError by viewModel.deleteError.collectAsState()     // NEW
 
     LaunchedEffect(Unit) {
         viewModel.loadStructs(context)
     }
+
+    // NEW: Handle delete success
+    LaunchedEffect(deleteSuccess) {
+        if (deleteSuccess) {
+            Toast.makeText(context, "Struk berhasil dihapus.", Toast.LENGTH_SHORT).show()
+            viewModel.resetDeleteStructState()
+        }
+    }
+
+    // NEW: Handle delete error
+    LaunchedEffect(deleteError) {
+        deleteError?.let { message ->
+            Toast.makeText(context, "Gagal menghapus struk: $message", Toast.LENGTH_LONG).show()
+            viewModel.resetDeleteStructState()
+        }
+    }
+
 
     Surface (
         modifier = Modifier.fillMaxSize(),
@@ -84,7 +105,11 @@ fun StructScreen(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
                             items(structs) { struct ->
-                                StructCard(struct = struct, onEdit = { navToEdit(struct.id) })
+                                StructCard(
+                                    struct = struct,
+                                    onEdit = { navToEdit(struct.id) },
+                                    onDelete = { viewModel.deleteStruct(struct.id) } // Pass delete action
+                                )
                             }
                         }
                     }
@@ -96,7 +121,7 @@ fun StructScreen(
 
 
 @Composable
-fun StructCard(struct: StructItem, onEdit: () -> Unit) {
+fun StructCard(struct: StructItem, onEdit: () -> Unit, onDelete: () -> Unit) {
     val categoryIcon: ImageVector = remember(struct.category_spending) {
         when (struct.category_spending?.lowercase()) {
             "food" -> Icons.Default.Fastfood
@@ -113,22 +138,23 @@ fun StructCard(struct: StructItem, onEdit: () -> Unit) {
         }
     }
 
-    // Determine icon background color based on the category (similar to the image)
     val iconBackgroundColor: Color = remember(struct.category_spending) {
         when (struct.category_spending?.lowercase()) {
-            "food" -> Color(0xFF4CAF50) // Green from image
-            "transportation" -> Color(0xFF2196F3) // Blue (using a common blue)
-            "clothing" -> Color(0xFFFF9800) // Orange (using a common orange)
-            "sport" -> Color(0xFF9C27B0) // Purple
-            "fuel" -> Color(0xFF607D8B) // Blue Grey
-            "internet" -> Color(0xFF795548) // Brown
-            "entertainment" -> Color(0xFFE91E63) // Pink
-            "health" -> Color(0xFF00BCD4) // Cyan
-            "home" -> Color(0xFFCDDC39) // Lime
-            "cigarettes" -> Color(0xFFF44336) // Red
-            else -> Color.LightGray // Default gray
+            "food" -> Color(0xFF4CAF50)
+            "transportation" -> Color(0xFF2196F3)
+            "clothing" -> Color(0xFFFF9800)
+            "sport" -> Color(0xFF9C27B0)
+            "fuel" -> Color(0xFF607D8B)
+            "internet" -> Color(0xFF795548)
+            "entertainment" -> Color(0xFFE91E63)
+            "health" -> Color(0xFF00BCD4)
+            "home" -> Color(0xFFCDDC39)
+            "cigarettes" -> Color(0xFFF44336)
+            else -> Color.LightGray
         }
     }
+
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -137,7 +163,7 @@ fun StructCard(struct: StructItem, onEdit: () -> Unit) {
         elevation = CardDefaults.cardElevation(8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant // Set card background to white
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
     ) {
         Row(
@@ -145,21 +171,21 @@ fun StructCard(struct: StructItem, onEdit: () -> Unit) {
                 .fillMaxWidth()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween // Distribute content
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             // Left side: Icon and Category/Merchant/Date
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    shape = RoundedCornerShape(12.dp), // Rounded square background for icon
+                    shape = RoundedCornerShape(12.dp),
                     color = iconBackgroundColor,
-                    modifier = Modifier.size(48.dp) // Size of the icon container
+                    modifier = Modifier.size(48.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         Icon(
                             categoryIcon,
                             contentDescription = null,
-                            tint = Color.White, // Icon color inside the colored square
-                            modifier = Modifier.size(28.dp) // Size of the icon itself
+                            tint = Color.White,
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                 }
@@ -171,54 +197,94 @@ fun StructCard(struct: StructItem, onEdit: () -> Unit) {
                         text = struct.category_spending?.ifBlank { "-" }?.replaceFirstChar { it.uppercase() } ?: "-",
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.onBackground // Consistent text color
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         text = struct.merchant_name ?: "-",
                         fontSize = 14.sp,
                         color =  Color.Gray
                     )
-                    // You might want to format the date string
                     Text(
-                        text = struct.transaction_date, // Format date as desired (e.g., "24/8/2025")
+                        text = struct.transaction_date,
                         fontSize = 12.sp,
                         color = Color.Gray
                     )
                 }
             }
 
-            // Right side: Total and Edit Button
+            // Right side: Action Buttons and Total
             Column(horizontalAlignment = Alignment.End) {
-                // Ensure total is displayed as negative for expenses, assuming all structs are expenses
+
+                // Total Expense
                 val formattedTotal = if (struct.final_total < 0) {
-                    "Rp${struct.final_total.toInt()}" // Already negative
+                    "Rp${struct.final_total.toInt()}"
                 } else {
-                    "-Rp${struct.final_total.toInt()}" // Add minus for positive expenses
+                    "-Rp${struct.final_total.toInt()}"
                 }
                 Text(
                     text = formattedTotal,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
-                    color = MaterialTheme.colorScheme.error // For expenses, typically red
+                    color = MaterialTheme.colorScheme.error // Tetap merah untuk pengeluaran
                 )
 
-                Spacer(Modifier.height(8.dp)) // Space between total and edit button
+                Spacer(Modifier.height(8.dp)) // Spasi antara tombol dan total pengeluaran
 
-                Button(
-                    onClick = onEdit,
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)), // Green color for the button
-                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp), // Smaller padding for a compact button
-                    modifier = Modifier.height(32.dp) // Smaller height
-                ) {
-                    Icon(Icons.Default.Edit, contentDescription = "Edit", modifier = Modifier.size(18.dp))
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text("Edit", fontSize = 12.sp) // Smaller text
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // NEW: Edit Button (Icon Only)
+                    IconButton(
+                        onClick = onEdit,
+                        modifier = Modifier.size(24.dp) // Ukuran ikon tombol
+                    ) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Edit",
+                            tint = MaterialTheme.colorScheme.primary // Warna ikon edit
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(8.dp)) // Spasi antara tombol Edit dan Delete
+
+                    // Delete Button (Icon Only)
+                    IconButton(
+                        onClick = { showDeleteDialog = true },
+                        modifier = Modifier.size(24.dp) // Ukuran ikon tombol
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Delete",
+                            tint = Color.Gray
+                        )
+                    }
                 }
             }
         }
     }
+
+    // Delete Confirmation Dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("Hapus Struk") },
+            text = { Text("Apakah Anda yakin ingin menghapus struk ini? Tindakan ini tidak dapat dibatalkan.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    onDelete()
+                    showDeleteDialog = false
+                }) {
+                    Text("Hapus", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("Batal")
+                }
+            },
+            containerColor = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -227,7 +293,7 @@ fun StructScreenPreview() {
         StructItem(
             id = "1",
             merchant_name = "Indomaret",
-            transaction_date = "2025-07-23", // Using YYYY-MM-DD for consistency
+            transaction_date = "2025-07-23",
             transaction_time = "10:30",
             items = listOf(
                 Item("Roti Tawar", 1, 15000.0, 15000.0)
@@ -285,7 +351,7 @@ fun StructScreenPreview() {
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             items(dummyStructs) {
-                StructCard(struct = it, onEdit = {})
+                StructCard(struct = it, onEdit = {}, onDelete = {})
             }
         }
     }

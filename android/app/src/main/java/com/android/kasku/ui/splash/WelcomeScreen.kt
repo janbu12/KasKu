@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,7 +54,10 @@ fun WelcomeScreen(navController: NavController) {
         Image(
             painter = painterResource(id = R.drawable.welcome),
             contentDescription = "Welcome",
-            modifier = Modifier.height(300.dp)
+            modifier = Modifier.defaultMinSize(
+                300.dp,
+                200.dp
+            )
         )
 
         Spacer(modifier = Modifier.height(24.dp))

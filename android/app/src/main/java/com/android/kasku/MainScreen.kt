@@ -61,7 +61,8 @@ import androidx.compose.runtime.LaunchedEffect // Import LaunchedEffect
 fun MainScreen(
     navController: NavController,
     authViewModel: AuthViewModel = viewModel(),
-    themeViewModel: ThemeViewModel
+    themeViewModel: ThemeViewModel,
+    startTabRoute: String? = null
 ) {
     val bottomNavController = rememberNavController()
     val profileViewModel: ProfileViewModel = viewModel()
@@ -70,6 +71,32 @@ fun MainScreen(
     // Panggil fetchUserProfile saat MainScreen pertama kali dimuat
     LaunchedEffect(Unit) {
         profileViewModel.fetchUserProfile(context)
+    }
+
+    // NEW: Handle initial tab navigation once
+    LaunchedEffect(startTabRoute) {
+        startTabRoute?.let {
+            // Ensure the requested tab is a valid bottom nav item
+            val validTabRoute = when (it) {
+                BottomNavItem.Dashboard.route -> BottomNavItem.Dashboard.route
+                BottomNavItem.Structs.route -> BottomNavItem.Structs.route
+                BottomNavItem.Profile.route -> BottomNavItem.Profile.route
+                BottomNavItem.Setting.route -> BottomNavItem.Setting.route
+                else -> BottomNavItem.Dashboard.route // Fallback to Dashboard
+            }
+            if (bottomNavController.currentDestination?.route != validTabRoute) {
+                bottomNavController.navigate(validTabRoute) {
+                    // Pop up to the start destination of the graph to avoid building a large back stack
+                    popUpTo(bottomNavController.graph.startDestinationId) {
+                        saveState = true
+                    }
+                    // Avoid multiple copies of the same destination when reselecting the same item
+                    launchSingleTop = true
+                    // Restore state when reselecting a previously selected item
+                    restoreState = true
+                }
+            }
+        }
     }
 
     val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
