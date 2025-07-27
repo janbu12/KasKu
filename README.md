@@ -1,4 +1,4 @@
-## KasKu: Manajemen Keuangan Personal Adaptif dengan Integrasi AI Multi-modal ✨💸🤖
+## KasKu: Aplikasi Pencatatan Keuangan Personal dengan Integrasi Pemrosesan Struk oleh Gemini AI dan Dukungan Pengambilan Keputusan Finansial. ✨💸🤖
 **KasKu** merevolusi pencatatan keuangan pribadi harian Anda dengan memanfaatkan kekuatan Kecerdasan Buatan (AI) Gemini secara terintegrasi. Aplikasi ini dirancang sebagai solusi cerdas yang memungkinkan Anda mengelola pengeluaran dan pemasukan dengan efisiensi dan akurasi yang belum pernah ada sebelumnya.
 
 Fitur Utama & Keunggulan Inovatif:
