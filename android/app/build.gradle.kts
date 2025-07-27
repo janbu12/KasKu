@@ -103,5 +103,14 @@ dependencies {
     implementation(libs.androidx.camera.view)
     // Coil (untuk menampilkan gambar dari URI/File)
     implementation(libs.coil.compose)
+    implementation(libs.androidx.ui.text)
+
+    implementation(libs.vico.compose)
+    implementation(libs.vico.compose.m2)
+    implementation(libs.vico.compose.m3)
+    implementation(libs.vico.multiplatform)
+    implementation(libs.vico.views)
+    implementation (libs.compose.charts)
+//    implementation(libs.ycharts)
 
 }
